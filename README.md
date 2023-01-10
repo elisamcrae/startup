@@ -4,5 +4,4 @@ CS260
 Setup of CS260 startup project
 
 Edit #2 in Github
-
-HaHaVSC! Stinks! and HaHaGit!
+HaHaGit and VSC!
