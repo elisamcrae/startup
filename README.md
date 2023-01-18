@@ -24,3 +24,8 @@ KEY FEATURES:
 *Ability to input a description with a recipe
 
 ![PXL_20230112_013341491](https://user-images.githubusercontent.com/63275372/211954848-db69a756-1861-4300-b805-e7ba85010c45.jpg)
+
+http://3.131.225.207/
+
+$ ssh -i "C:\Users\Elisa's Laptop\Downloads\260webserverelisa.pem" ubuntu@3.131.225.207
+
