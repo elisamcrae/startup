@@ -27,5 +27,7 @@ KEY FEATURES:
 
 http://3.131.225.207/
 
+http://elisa260.click
+
 $ ssh -i "C:\Users\Elisa's Laptop\Downloads\260webserverelisa.pem" ubuntu@3.131.225.207
 
