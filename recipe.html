@@ -14,36 +14,50 @@
   </head>
   <body>
     <h1>Hi INSERT USERNAME</h1>
-    <button type="New Recipe" onclick="submit.html" value="Submit New Recipe"/>
-    <section>
+    <form method="get" action="submit.html">
+      <button type="submit" class="btn btn-primary">Submit New Recipe</button>
+    </form>
+    <div class="row">
       <p1>Your Recipes:</p1>
       <div class="column">
-        <img
-           alt="Mac and cheese"
-           src="microwave-mac-and-cheese-sq.webp"
-           style = "width:100%"
-        />
-      </div>
-      <div class="column">
-        <img
-           alt="Tacos"
-           src="ground-beef-tacos-1-11.jpg"
-           style = "width:100%"
-        />
-      </div>
-      <div class="column">
-        <img
-           alt="Hummus"
-           src="hummus.jfif"
-           style = "width:100%"
-        />
+        <figure>
+          <img
+            alt="Mac and cheese"
+            src="microwave-mac-and-cheese-sq.webp"
+            style = "width:10em"
+          />
+          <figcaption>Mac and Cheese</figcaption>
+        </figure>
+        <figure>
+          <img
+            alt="Tacos"
+            src="ground-beef-tacos-1-11.jpg"
+            style = "width:10em"
+          />
+          <figcaption>Beef Tacos</figcaption>
+        </figure>
+        <figure>
+          <img
+            alt="Hummus"
+            src="hummus.jfif"
+            style = "width:10em"
+          />
+          <figcaption>Hummus</figcaption>
+        </figure>
       </div>
     </div>
-    <div>
+
+    <div class="row">
       <p1>Your Friends Recipes:</p1>
-      <img
-           alt="Lasagna"
-           src="Best-Lasagna-550-500x375.jpg"
-      />
+      <div class="column">
+        <figure>
+          <img
+            alt="Lasagna"
+            src="Best-Lasagna-550-500x375.jpg"
+            style="width:10em"
+            />
+            <figcaption>Lasagna</figcaption>
+        </figure>
+      </div>
     </div>
 </html>
