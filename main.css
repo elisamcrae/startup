@@ -4,9 +4,9 @@ body {
   min-width: 375px;
 }
 
-header {
+/*header {
   flex: 0 80px;
-}
+}*/
 
 main {
   flex: 1 calc(100vh - 100px);
