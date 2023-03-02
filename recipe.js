@@ -1,5 +1,5 @@
 class User {
-    recipes;
+    recipes = [];
     userName;
     constructor() {
         const userNameEl = document.querySelector('.user-name');
@@ -22,10 +22,10 @@ class User {
     getRecipe() {
         let recipeName = localStorage.getItem('RecipeName');
         let recipeInstructions = localStorage.getItem('Recipe');
-        if (recipeName && recipeInstructions) {
+        if (recipeName != "" && recipeInstructions != "") {
             this.recipes.push([recipeName, recipeInstructions]);
+            console.log(this.recipes.length);//TODELETE
         }
-        console.log(recipes.length);//TODELETE
         //this.recipes = Object.assign({3: {name: recipeName, recipe: recipeInstructions}}, this.recipes);
     }
 }
