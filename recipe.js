@@ -2,9 +2,6 @@ class User {
     recipes;
     userName;
     constructor() {
-        this.recipes = {
-            1: {name: "Mac and Cheese", recipe: "here's how to make it"}
-        }
         const userNameEl = document.querySelector('.user-name');
         userNameEl.textContent = this.getUserName();
     }
@@ -18,13 +15,16 @@ class User {
             return "Unknown"
         }
     }
+
+    addRecipe() {
+        const recipeName = document.querySelector('.recipe_name');
+        const recipeInstructions = document.querySelector('.recipe');
+        this.recipes = Object.assign({3: {name: recipeName, recipe: recipeInstructions}}, this.recipes);
+    }
 }
 
-function addRecipe() {
-    const recipeName = document.querySelector('.recipe_name');
-    const recipeInstructions = document.querySelector('.recipe');
-    this.recipes = Object.assign({3: {name: recipeName, recipe: recipeInstructions}}, this.recipes);
-    window.location.href = "recipe.html";
+class Recipes extends User() {
+    
 }
 
 const user = new User();
