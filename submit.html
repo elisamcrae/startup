@@ -4,8 +4,8 @@
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>New Recipe</title>
-    <script src="recipe.js"></script>
     <link rel="stylesheet" href= "main.css"/>
+    <script src="addrecipe.js"></script>
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -26,12 +26,12 @@
       </nav>
     </header>
 
-    <form class="submitButton">
+    <form method="get" action="recipe.html" id="submitButton">
       <label for="recipe name">Recipe Name:</label>
       <input type="text" id="recipe_name">
       <label for="recipe">Recipe:</label>
       <input type="text" id="recipe">
-      <button type="submit" class="btn btn-primary" onclick="addRecipe()">Submit</button>
+      <button class="btn btn-primary" onclick="addRecipe()">Submit</button>
     </form>
   </body>
 </html>
