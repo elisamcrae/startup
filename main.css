@@ -81,6 +81,10 @@ img {
   display: block;
 }
 
+#recipes {
+  white-space: pre;
+}
+
 @media (max-height: 600px) {
   header {
     display: none;

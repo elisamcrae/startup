@@ -28,7 +28,6 @@ class User {
     getRecipe() {
         //const recis = JSON.parse(localStorage.getItem("Recipes"));
         const recis = localStorage.getItem("Recipes");
-        console.log(recis);//TO DELETE
         //if (this.recipes.includes(recis)) {
         if (Object.values(this.recipes).includes(recis) === false) {
             this.recipes.push(recis);
@@ -68,13 +67,32 @@ class User {
     }
 
     printRecipes() {
-        let toPrint = ""
+        const userNameE1 = document.querySelector('.recipes');
+        let toPrint = "";
+        let onePrint = "";
         //const toPrint = this.recipes;
         for (const [key, value] of Object.entries(this.recipes)) {
-            toPrint += value + "\n";
+            for (const i of value) {
+                if (i != "[" || i != "]" || i != "{" || i != "}") {
+                    onePrint += i;
+                }
+            }
         }
-        const userNameEl = document.querySelector('.recipes');
-        userNameEl.textContent = toPrint;
+        onePrint.replace("[", "");
+        onePrint.replace("]", "");
+        onePrint.replace("{", "");
+        onePrint.replace("}", "");
+        let myArs = onePrint.split(",");
+        let myAr = myArs
+        for (const i of myAr) {
+            let k = i.substring(i.indexOf(":") + 1);
+            k= k.replace("]", "");
+            k= k.replace("}", "");
+            k=k.replace('\"', '');
+            k=k.replace('\"', '');
+            userNameE1.textContent += k + " ";
+        }
+        //userNameEl.textContent = toPrint;
     }
 
     printSuggestion() {
