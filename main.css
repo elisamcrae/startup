@@ -1,12 +1,14 @@
 body {
   display: flex;
   flex-direction: column;
-  min-width: 375px;
+  min-width: 700px;
+  position: absolute;
 }
 
-/*header {
+header {
   flex: 0 80px;
-}*/
+  color: blue;
+}
 
 main {
   flex: 1 calc(100vh - 100px);
@@ -16,12 +18,34 @@ main {
   justify-content: space-around;
 }
 
+menu {
+  flex: 1;
+  display: flex;
+  /*overwrite Bootstrap so the menu does not wrap */
+  flex-direction: row !important;
+  list-style: none;
+  color: blue;
+}
+
+menu .nav-item {
+  padding: 0 0.3em;
+}
+
 footer {
   flex: 0 30px;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  height: 1.5rem;
 }
 
 footer a {
   float: right;
+}
+
+.navbar-brand {
+  padding-left: 0.3em;
+  border-bottom: solid rgb(182, 182, 182) thin;
 }
 
 #count {
@@ -38,13 +62,18 @@ footer a {
 
 .center {
   top: 50%;
-  left: 50%;
+  left: 10%;
   transform: translateX(-50%) translateY(-50%);
+  margin: auto;
 }
 
 #submitButton {
   width: 200px;
   padding: 20px;
+}
+
+.user {
+  font-size: 40px;
 }
 
 .column {
@@ -69,6 +98,7 @@ p1 {
 
 div.item {
   text-align: center;
+  align-items: center;
   width: 120px;
   float: left;
 }
@@ -76,9 +106,11 @@ img {
   width: 100px;
   height: 100px;
   background-color: grey;
+  align-items: center;
 }
 .caption {
   display: block;
+  align-items: center;
 }
 
 #recipes {
