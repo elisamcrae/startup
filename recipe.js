@@ -27,17 +27,24 @@ class User {
 
     getRecipe() {
         const keys = Object.keys(localStorage);
+        let recipeName = '';
+        let recipeInstructions = '';
         for (const item of keys) {
-            if (item != "userName") {
-                let recipeName = localStorage.getItem('RecipeName');
-                let recipeInstructions = localStorage.getItem('Recipe');
-                if (recipeName != "" && recipeInstructions != "") {
-                    console.log(this.recipes.includes([recipeName, recipeInstructions]));//TO DELETE
-                    if (this.recipes.includes([recipeName, recipeInstructions])) {
-                        continue;
-                    } else {
-                        this.recipes.push([recipeName, recipeInstructions]);
-                    }
+            if (item === "RecipeName") {
+                recipeName = localStorage.getItem(item);
+                //let recipeInstructions = localStorage.getItem();
+            }
+            else if (item === "Recipe") {
+                recipeInstructions = localStorage.getItem(item);
+            }
+            if (recipeName != "" && recipeInstructions != "") {
+                console.log(this.recipes.includes([recipeName, recipeInstructions]));//TO DELETE
+                if (this.recipes.includes([recipeName, recipeInstructions])) {
+                    continue;
+                } else {
+                    this.recipes.push([recipeName, recipeInstructions]);
+                    recipeName = '';
+                    recipeInstructions = '';
                 }
             }
         }
