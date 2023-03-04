@@ -2,7 +2,6 @@ body {
   display: flex;
   flex-direction: column;
   min-width: 700px;
-  position: absolute;
 }
 
 header {
@@ -78,6 +77,7 @@ footer a {
 
 .column {
   float: center;
+  align-items: center;
   padding: 5px;
   width: 50vmin;
   display: flex;
@@ -86,6 +86,7 @@ footer a {
 
 .row {
   float: center;
+  align-items: center;
   padding: 5px;
   width: 40vmin;
   display: flex;
@@ -111,6 +112,11 @@ img {
 .caption {
   display: block;
   align-items: center;
+}
+
+.bg-primary {
+  height: 100%;
+  width: 100%;
 }
 
 #recipes {
