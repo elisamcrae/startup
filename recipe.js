@@ -67,10 +67,32 @@ class User {
     }
 
     printRecipes() {
-        const userNameE1 = document.querySelector('.recipes');
+        const matches = document.querySelectorAll('div.column1');
+        const onePrint = localStorage.getItem("Recipes");
+        console.log(onePrint)//TO DEL
+        const myA = onePrint.split(",")
+        let a = 0;
+        let newLength = myA.length
+        let indices = []
+        for (const item of myA) {
+            if (item === "") {
+                delete myA[a]
+                newLength -= 1
+            }
+            else {indices.push(a) }
+            ++a
+        }
+        let i = 0;
+        matches.forEach((userItem) => {
+            if (i + 1< indices.length) {
+                userItem.textContent = myA[indices[i]] + "\r\n" + myA[indices[i+1]]
+                ++i;
+                ++i;
+            }
+        });
+        /*const userNameE1 = document.querySelector('.column');
         let toPrint = "";
         let onePrint = "";
-        //const toPrint = this.recipes;
         for (const [key, value] of Object.entries(this.recipes)) {
             for (const i of value) {
                 if (i != "[" || i != "]" || i != "{" || i != "}") {
@@ -78,10 +100,6 @@ class User {
                 }
             }
         }
-        onePrint.replace("[", "");
-        onePrint.replace("]", "");
-        onePrint.replace("{", "");
-        onePrint.replace("}", "");
         let myArs = onePrint.split(",");
         let myAr = myArs
         for (const i of myAr) {
@@ -90,9 +108,10 @@ class User {
             k= k.replace("}", "");
             k=k.replace('\"', '');
             k=k.replace('\"', '');
-            userNameE1.textContent += k + " ";
+            //userNameE1.textContent += k + "\r\n";
+            toPrint += k + "\n";
         }
-        //userNameEl.textContent = toPrint;
+        userNameE1.textContent = toPrint;*/
     }
 
     printSuggestion() {
@@ -106,9 +125,5 @@ class User {
         userNameEl.textContent = ["Mac and Cheese", recInstr];
     }
 }
-
-/*class Recipes extends User() {
-    recip
-}*/
 
 const user = new User();
