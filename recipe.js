@@ -4,7 +4,6 @@ class User {
     constructor() {
         const userNameEl = document.querySelector('.user-name');
         userNameEl.textContent = this.getUserName();
-        localStorage.clear()
         this.getRecipe();
         if (this.recipes.length === 0) {
             this.printSuggestion();
@@ -86,7 +85,7 @@ class User {
         let i = 0;
         matches.forEach((userItem) => {
             if (i + 1< indices.length) {
-                userItem.textContent = myA[indices[i]] + "\n" + myA[indices[i+1]]
+                userItem.innerText = myA[indices[i]] + ":\n" + myA[indices[i+1]]
                 ++i;
                 ++i;
             }
@@ -123,7 +122,7 @@ class User {
         + "4. Pour in milk slowly, while stirring continuously. Continue to cook and stir until mixture is smooth and bubbling, about 5 minutes, making sure the milk doesn't burn.\n"
         + "5. Add Cheddar cheese and stir until melted, 2 to 4 minutes.\n"
         + "6. Drain macaroni and fold into cheese sauce until coated.\n"
-        userNameEl.textContent = "Mac and Cheese\n" + recInstr;
+        userNameEl.innerText = "Mac and Cheese:\r\n" + recInstr;
         //userNameEl.textContent = recInstr;
     }
 }

@@ -109,10 +109,6 @@ img {
   background-color: grey;
   align-items: center;
 }
-.caption {
-  display: block;
-  align-items: center;
-}
 #column1:not(:empty) {
   border-width: 3px;
   border-style: solid;
@@ -122,6 +118,28 @@ img {
   margin: 0;
   float: left;
   display: flex;
+  padding: 1.5em;
+}
+
+#popup {
+  visibility: hidden;
+  width: 160px;
+  background-color: #555;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 8px 0;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -80px;
+}
+
+#popup .show {
+  visibility: visible;
+  -webkit-animation: fadeIn 1s;
+  animation: fadeIn 1s
 }
 
 .bg-primary {
