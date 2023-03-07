@@ -113,6 +113,16 @@ img {
   display: block;
   align-items: center;
 }
+#column1:not(:empty) {
+  border-width: 3px;
+  border-style: solid;
+  border-color:rgb(217, 161, 21);
+  flex-direction: row;
+  background-color: bisque;
+  margin: 0;
+  float: left;
+  display: flex;
+}
 
 .bg-primary {
   height: 100%;
@@ -120,7 +130,7 @@ img {
 }
 
 #recipes {
-  white-space: pre;
+  white-space: pre-line;
 }
 
 @media (max-height: 600px) {
