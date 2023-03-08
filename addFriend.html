@@ -22,13 +22,13 @@
             <a class="nav-link" href="recipe.html">Home</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="index.html">Login</a>
-          </li>
-          <li class="nav-item">
             <a class="nav-link" href="submit.html">Submit Recipe</a>
           </li>
           <li class="nav-item">
             <a class="nav-link active" href="addFriend.html">Friends</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" onclick="logout()">Logout</a>
           </li>
         </menu>
       </nav>
@@ -43,9 +43,9 @@
                 <h1>Add friend</h1>
                 <form method="get" action="thanks.html" id="submitButton">
                   <label for="recipe name">Friend's Name:</label>
-                  <input type="text" id="friend_name">
+                  <input type="text" id="friend_name" required>
                   <label for="recipe">Friend's Email:</label>
-                  <input type="text" id="friend_email">
+                  <input type="text" id="friend_email" required>
                   <button class="btn btn-primary" onclick="addf()">Submit</button>
                 </form>
             </div>
