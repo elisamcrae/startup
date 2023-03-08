@@ -75,22 +75,21 @@ footer a {
   font-size: 40px;
 }
 
-.column {
+.column:not(:empty) {
   float: center;
-  align-items: center;
   padding: 5px;
-  width: 50vmin;
+  width: 100vmin;
   display: flex;
-  gap: 20px;
+  column-gap: 10px;
+  flex: 0 1 auto;
 }
 
-.row {
-  float: center;
+.row:not(:empty) {
   align-items: center;
-  padding: 5px;
-  width: 40vmin;
-  display: flex;
-  gap: 20px;
+  display: grid;
+  gap: 15px;
+  flex-direction: row;
+  flex-wrap: wrap;
 }
 
 p1 {
@@ -110,36 +109,17 @@ img {
   align-items: center;
 }
 #column1:not(:empty) {
+  width: 200px;
   border-width: 3px;
   border-style: solid;
   border-color:rgb(217, 161, 21);
   flex-direction: row;
-  background-color: bisque;
+  --bs-bg-opacity: 1;
+  background-color: rgba(var(--bs-light-rgb),var(--bs-bg-opacity))!important;
   margin: 0;
   float: left;
   display: flex;
-  padding: 1.5em;
-}
-
-#popup {
-  visibility: hidden;
-  width: 160px;
-  background-color: #555;
-  color: #fff;
-  text-align: center;
-  border-radius: 6px;
-  padding: 8px 0;
-  position: absolute;
-  z-index: 1;
-  bottom: 125%;
-  left: 50%;
-  margin-left: -80px;
-}
-
-#popup .show {
-  visibility: visible;
-  -webkit-animation: fadeIn 1s;
-  animation: fadeIn 1s
+  padding: 1em;
 }
 
 .bg-primary {
