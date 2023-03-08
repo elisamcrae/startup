@@ -6,7 +6,7 @@ class User {
         userNameEl.textContent = this.getUserName();
         this.getRecipe();
         if (this.recipes.length === 0) {
-            this.printSuggestion();
+            console.log("this");
         }
         else {
             this.printRecipes();
@@ -122,7 +122,8 @@ class User {
         + "4. Pour in milk slowly, while stirring continuously. Continue to cook and stir until mixture is smooth and bubbling, about 5 minutes, making sure the milk doesn't burn.\n"
         + "5. Add Cheddar cheese and stir until melted, 2 to 4 minutes.\n"
         + "6. Drain macaroni and fold into cheese sauce until coated.\n"
-        userNameEl.innerText = "Mac and Cheese:\r\n" + recInstr;
+        userNameEl.innerText = "No recipes found. Suggested Recipe:\n"
+        userNameEl.innerText += "Mac and Cheese:\r\n" + recInstr;
         //userNameEl.textContent = recInstr;
     }
 }
