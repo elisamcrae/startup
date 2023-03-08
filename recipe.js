@@ -1,6 +1,7 @@
 class User {
     recipes = [];
     userName;
+    counter = 0;
     constructor() {
         const userNameEl = document.querySelector('.user-name');
         userNameEl.textContent = this.getUserName();
@@ -11,6 +12,7 @@ class User {
         else {
             this.printRecipes();
         }
+        this.changeR();
     }
 
     getUserName() {
@@ -31,6 +33,7 @@ class User {
         //if (this.recipes.includes(recis)) {
         if (Object.values(this.recipes).includes(recis) === false && recis != null) {
             this.recipes.push(recis);
+            this.counter += 1;
         }
         //const recis = JSON.parse(reci);
         //console.log(recis);
@@ -125,6 +128,23 @@ class User {
         userNameEl.innerText = "No recipes found. Suggested Recipe:\n"
         userNameEl.innerText += "Mac and Cheese:\r\n" + recInstr;
         //userNameEl.textContent = recInstr;
+    }
+
+    changeR() {
+        const editables = document.querySelectorAll("[contenteditable]");
+        editables.forEach(el => {
+            el.addEventListener("blur", () => {
+              localStorage.setItem("dataStorage-" + el.id, el.innerHTML);
+            })
+          });
+          
+          // once on load
+        for (var key in localStorage) {
+        if (key.includes("dataStorage-")) {
+            const id = key.replace("dataStorage-","");
+            document.querySelector("#" + id).innerHTML = localStorage.getItem(key);
+           }
+        }
     }
 }
 

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Recipe Share</title>
     <link rel="stylesheet" href= "main.css"/>
+    <script src="login.js"></script>
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -20,13 +21,13 @@
             <a class="nav-link active" href="recipe.html">Home</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="index.html">Login</a>
-          </li>
-          <li class="nav-item">
             <a class="nav-link" href="submit.html">Submit Recipe</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="addFriend.html">Friends</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" onclick="logout()">Logout</a>
           </li>
         </menu>
       </nav>
@@ -39,35 +40,10 @@
       <div class="column">
         <p1>Your Recipes:</p1>
         <span class="recipes"></span>
+        <div class="container text-black row" id="column1" contenteditable="true"></div>
         <div class="container text-black row" id="column1"></div>
         <div class="container text-black row" id="column1"></div>
         <div class="container text-black row" id="column1"></div>
-        <div class="container text-black row" id="column1"></div>
-          <!--<figure>
-            <img
-              alt="Mac and cheese"
-              src="microwave-mac-and-cheese-sq.webp"
-              style = "width:10em"
-            />
-            <figcaption>Mac and Cheese</figcaption>
-          </figure>
-          <figure>
-            <img
-              alt="Tacos"
-              src="ground-beef-tacos-1-11.jpg"
-              style = "width:10em"
-            />
-            <figcaption>Beef Tacos</figcaption>
-          </figure>
-          <figure>
-            <img
-              alt="Hummus"
-              src="hummus.jfif"
-              style = "width:10em"
-            />
-            <figcaption>Hummus</figcaption>
-          </figure>
-        </div>--->
       </div>
 
       <div class="column">

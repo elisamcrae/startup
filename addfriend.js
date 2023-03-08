@@ -18,7 +18,7 @@ class User {
 
     getFriends() {
         const recis = localStorage.getItem("Friends");
-        if (Object.values(this.friends).includes(recis) === false && recis != 'null') {
+        if (Object.values(this.friends).includes(recis) === false && recis != null) {
             this.friends.push(recis);
         }  
     
