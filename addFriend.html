@@ -28,20 +28,29 @@
             <a class="nav-link" href="submit.html">Submit Recipe</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link active" href="addFriend.html">Add Friend</a>
+            <a class="nav-link active" href="addFriend.html">Friends</a>
           </li>
         </menu>
       </nav>
     </header>
     <main class="container-fluid text-white" style = "background-color: rgb(119, 155, 119);" id="friendForm">
-      <h1>Add friend</h1>
-      <form method="get" action="thanks.html" id="submitButton">
-        <label for="recipe name">Friend's Name:</label>
-        <input type="text" id="friend_name">
-        <label for="recipe">Friend's Email:</label>
-        <input type="text" id="friend_email">
-        <button class="btn btn-primary">Submit</button>
-      </form>
+        <div class="row" id="friendR">
+            <div class="column" id="friendC">
+                <h1>Your friends</h1>
+                <span class="friend-name">
+            </div>
+            <div class="column" id="friendC">
+                <h1>Add friend</h1>
+                <form method="get" action="thanks.html" id="submitButton">
+                  <label for="recipe name">Friend's Name:</label>
+                  <input type="text" id="friend_name">
+                  <label for="recipe">Friend's Email:</label>
+                  <input type="text" id="friend_email">
+                  <button class="btn btn-primary" onclick="addf()">Submit</button>
+                </form>
+            </div>
+        </div>
+        <script src="addfriend.js"></script>
     </main>
   </body>
 </html>
