@@ -44,3 +44,13 @@ For using CSS, remember to add the styleguide link on the HTML document! Look up
 From making my startup project with HTML and CSS, I learned a lot more about how they function both separately and together. I learned how to change specific elements in CSS and how to make a form. I also solidified how to link pages together. It was super tricky to get my recipe images to line up side by side but I figured it out, thanks to columns and rows.
 
 With the Simon JS, I learned that it is important to make sure you call the JS functions in the HTML file. I also learned the hard to way to make sure that the audio files (or any other called files) are named what you think they are.
+
+MIDTERM:
+
+You CAN use this to load CSS fonts from google: @import url('https://fonts.googleapis.com/css?family=Quicksand');
+
+flex-direction: column-reverse; will make the columns start at the bottom and go up (ex. "world", "hello") just put the words in separate divs
+
+CSS padding: puts space around the content of selected elements
+
+This adds one to y
