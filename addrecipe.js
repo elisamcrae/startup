@@ -24,3 +24,17 @@ function addRecipe() {
     //this.recipes = Object.assign({3: {name: recipeName, image: "", recipe: recipeInstructions}}, this.recipes);
     //window.location.replace("recipe.html");
 }
+
+function addf() {
+    const fName = document.querySelector('#friend_name');
+        let rArrays = "";
+        /*if (localStorage.getItem("Friends")) {
+            rArrays = localStorage.getItem("Friends");
+            rArrays += fName.value + ",";
+            localStorage.setItem("Friends", rArrays);
+        } else {
+            toStr = fName.value + ","
+            localStorage.setItem("Friends", toStr)
+        }*/
+    localStorage.setItem("Friends", fName.value);
+}

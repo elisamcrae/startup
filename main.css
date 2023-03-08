@@ -78,16 +78,30 @@ footer a {
 .column:not(:empty) {
   float: center;
   padding: 5px;
-  width: 100vmin;
-  display: flex;
-  column-gap: 10px;
-  flex: 0 1 auto;
+  width: 45vmin;
+  display: grid;
+  gap: 10px;
+  flex: 50%;
 }
 
-.row:not(:empty) {
+#u {
+  display: inline;
+  gap: 0px;
+}
+
+#column1.row:not(:empty) {
   align-items: center;
   display: grid;
   gap: 15px;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+#friendR {
+  width: 35pc;
+}
+
+#p.row{
   flex-direction: row;
   flex-wrap: wrap;
 }
