@@ -16,7 +16,6 @@ class User {
     }
 
     getUserName() {
-        //console.log(recipes.length);//TODELETE
         this.userName = localStorage.getItem('userName')
         if (this.userName) {
             return localStorage.getItem('userName') ?? 'Unknown';
@@ -28,51 +27,16 @@ class User {
     }
 
     getRecipe() {
-        //const recis = JSON.parse(localStorage.getItem("Recipes"));
         const recis = localStorage.getItem("Recipes");
-        //if (this.recipes.includes(recis)) {
         if (Object.values(this.recipes).includes(recis) === false && recis != null) {
             this.recipes.push(recis);
             this.counter += 1;
         }
-        //const recis = JSON.parse(reci);
-        //console.log(recis);
-        //for (const ar of recis) {
-            //console.log(ar);//TO DELETE
-            //if (this.recipes.includes(ar)) {continue;}
-            //else {this.recipes.push(ar);}
-       // }
-        //const keys = Object.keys(localStorage);
-        //console.log(keys);//TO DELETE
-        //let recipeName = '';
-        //let recipeInstructions = '';
-        //for (const item of keys) {
-          //  if (item === "RecipeName") {
-            //    recipeName = localStorage.getItem(item);
-                //let recipeInstructions = localStorage.getItem();
-            //}
-            //else if (item === "Recipe") {
-              //  recipeInstructions = localStorage.getItem(item);
-            //}
-            //if (recipeName != "" && recipeInstructions != "") {
-                //console.log(this.recipes.includes([recipeName, recipeInstructions]));//TO DELETE
-              //  if (this.recipes.includes([recipeName, recipeInstructions])) {
-                //    continue;
-                //} else {
-                  //  this.recipes.push([recipeName, recipeInstructions]);
-                    //recipeName = '';
-                    //recipeInstructions = '';
-                    //localStorage.removeItem(item);
-                //}
-           // }
-        //}
-        //this.recipes = Object.assign({3: {name: recipeName, recipe: recipeInstructions}}, this.recipes);
     }
 
     printRecipes() {
         const matches = document.querySelectorAll('#column1');
         const onePrint = localStorage.getItem("Recipes");
-        console.log(onePrint)//TO DEL
         const myA = onePrint.split(",")
         let a = 0;
         let newLength = myA.length
@@ -88,33 +52,12 @@ class User {
         let i = 0;
         matches.forEach((userItem) => {
             if (i + 1< indices.length) {
+                userItem.contentEditable=true;
                 userItem.innerText = myA[indices[i]] + ":\n" + myA[indices[i+1]]
                 ++i;
                 ++i;
             }
         });
-        /*const userNameE1 = document.querySelector('.column');
-        let toPrint = "";
-        let onePrint = "";
-        for (const [key, value] of Object.entries(this.recipes)) {
-            for (const i of value) {
-                if (i != "[" || i != "]" || i != "{" || i != "}") {
-                    onePrint += i;
-                }
-            }
-        }
-        let myArs = onePrint.split(",");
-        let myAr = myArs
-        for (const i of myAr) {
-            let k = i.substring(i.indexOf(":") + 1);
-            k= k.replace("]", "");
-            k= k.replace("}", "");
-            k=k.replace('\"', '');
-            k=k.replace('\"', '');
-            //userNameE1.textContent += k + "\r\n";
-            toPrint += k + "\n";
-        }
-        userNameE1.textContent = toPrint;*/
     }
 
     printSuggestion() {
@@ -127,7 +70,6 @@ class User {
         + "6. Drain macaroni and fold into cheese sauce until coated.\n"
         userNameEl.innerText = "No recipes found. Suggested Recipe:\n"
         userNameEl.innerText += "Mac and Cheese:\r\n" + recInstr;
-        //userNameEl.textContent = recInstr;
     }
 
     changeR() {
