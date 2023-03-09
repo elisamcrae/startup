@@ -35,7 +35,6 @@ class User {
     }
 
     printRecipes() {
-        localStorage.clear();
         const matches = document.querySelectorAll('#column1');
         const onePrint = localStorage.getItem("Recipes");
         const myA = onePrint.split(",")
