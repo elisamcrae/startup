@@ -145,6 +145,11 @@ img {
   white-space: pre-line;
 }
 
+#rButton1 {
+  width: 189px;
+  height: 200px;
+}
+
 @media (max-height: 600px) {
   header {
     display: none;
