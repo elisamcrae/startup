@@ -74,11 +74,10 @@ function f(x) {}
 const f = function(x) {}
 
 To include JS in HTML:
-<script>1+1</script>
-<script src='main.js' />
-<div onclick='1+1' />
+script>1+1</script
+script src='main.js'
 
-JS objects look like this: "{ n:1 }"
+JS objects look like this: { n:1 };
 
 DOM textContent properties sets the child text for an element
 
@@ -91,7 +90,7 @@ div.header { color: blue; } when class=header will turn the text blue
 chmod +x deploy.sh makes a script executable
 
 c260.cs.byu.edu is a DNS subdomain (Domain Name System)
-To point to another DNS record, use CNAME
+To point to another DNS record, use CNAME//
 
 JS PROJECT:
 This project was difficult for me, and I spent a lot of hours trying to figure out how to format my inserted text with javascript as well as how to save and edit variables entered in by the user. However, I was able to find creative solutions to my problems. I am most proud that I was able to make the recipes editable because I struggled even figuring out logically how to do it. I am also happy with how the text is printing out now. I learned that google is my friend, and also how to troubleshoot on the "inspect" option.
