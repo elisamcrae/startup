@@ -1,6 +1,6 @@
 function addRecipe() {
     const recipeName = document.querySelector('#recipe_name');
-    const recipeInstructions = document.querySelector('#recipe');
+    const recipeInstructions = document.querySelector('#rButton1');
     let rArrays = "";
     if (localStorage.getItem("Recipes")) {
         rArrays = localStorage.getItem("Recipes");

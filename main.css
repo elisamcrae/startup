@@ -123,7 +123,7 @@ img {
   align-items: center;
 }
 #column1:not(:empty) {
-  width: 200px;
+  width: 400px;
   border-width: 3px;
   border-style: solid;
   border-color:rgb(217, 161, 21);
@@ -136,6 +136,25 @@ img {
   padding: 1em;
 }
 
+input {
+  width: 400px;
+  border-width: 3px;
+  border-style: solid;
+  border-color:rgb(217, 161, 21);
+  flex-direction: row;
+  --bs-bg-opacity: 1;
+  background-color: rgba(var(--bs-light-rgb),var(--bs-bg-opacity))!important;
+  margin: 0;
+  float: left;
+  display: flex;
+  padding: 1em;
+}
+
+input#username{
+  width: 200px;
+  height: 40px;
+}
+
 .bg-primary {
   height: 100%;
   width: 100%;
@@ -146,8 +165,18 @@ img {
 }
 
 #rButton1 {
-  width: 189px;
-  height: 200px;
+  width: 400px;
+  border-width: 3px;
+  border-style: solid;
+  border-color:rgb(217, 161, 21);
+  flex-direction: row;
+  --bs-bg-opacity: 1;
+  background-color: rgba(var(--bs-light-rgb),var(--bs-bg-opacity))!important;
+  margin: 0;
+  float: left;
+  display: flex;
+  padding: 1em;
+  margin-top: 10px;
 }
 
 @media (max-height: 600px) {

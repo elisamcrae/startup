@@ -75,8 +75,12 @@ class User {
     changeR() {
         const editables = document.querySelectorAll("[contenteditable]");
         editables.forEach(el => {
+            const myEl = el.innerHTML;
             el.addEventListener("blur", () => {
-              localStorage.setItem("dataStorage-" + el.id, el.innerHTML);
+                if (el.innerHTML === "" || el.innerHTML === "<br>") {
+                    el.style.visibility = "hidden";
+                }
+                localStorage.setItem("dataStorage-" + el.id, el.innerHTML);
             })
           });
           
@@ -85,6 +89,9 @@ class User {
         if (key.includes("dataStorage-")) {
             const id = key.replace("dataStorage-","");
             document.querySelector("#" + id).innerHTML = localStorage.getItem(key);
+            if (document.querySelector("#" + id).innerHTML === "") {
+                document.querySelector("#" + id).style.visibility = "hidden";
+            }
            }
         }
     }
