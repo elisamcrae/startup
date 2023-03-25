@@ -97,3 +97,5 @@ This project was difficult for me, and I spent a lot of hours trying to figure o
 
 SIMON SERVICE:
 This project helped me understand more the purpose behind using nodes to host a website. I still do not have a full understanding of nodes but I definitely understand more. I also learned how to troubleshoot with VS Code which was helpful.
+
+SIMON DB: This project was helpful in getting me to understand how connecting to MongoDB works, as well as the importance of keeping the keys hidden. I feel like I have more of a handle on MongoDB after looking over and deploying this code.
