@@ -101,3 +101,5 @@ This project helped me understand more the purpose behind using nodes to host a 
 SIMON DB: This project was helpful in getting me to understand how connecting to MongoDB works, as well as the importance of keeping the keys hidden. I feel like I have more of a handle on MongoDB after looking over and deploying this code.
 
 SIMON LOGIN: I really like how we are learning not just how to collect passwords but how to keep them secure as well. I am still a little confused as to the role of cookies in password collection and recollection. However, I understand more why we need to include secure, HTTPOnly, and sameSite.
+
+SIMON WEBSOCKETS: Websockets seem super cool and very useful. I didn't realize until the class lecture that live servers have been using websockets this whole time to update our websites while debugging. It also is wild to me how simple they are, yet how powerful they can be. THis was a fun opportunity to get to learn more about them.
