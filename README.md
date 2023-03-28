@@ -94,3 +94,12 @@ To point to another DNS record, use CNAME//
 
 JS PROJECT:
 This project was difficult for me, and I spent a lot of hours trying to figure out how to format my inserted text with javascript as well as how to save and edit variables entered in by the user. However, I was able to find creative solutions to my problems. I am most proud that I was able to make the recipes editable because I struggled even figuring out logically how to do it. I am also happy with how the text is printing out now. I learned that google is my friend, and also how to troubleshoot on the "inspect" option.
+
+SIMON SERVICE:
+This project helped me understand more the purpose behind using nodes to host a website. I still do not have a full understanding of nodes but I definitely understand more. I also learned how to troubleshoot with VS Code which was helpful.
+
+SIMON DB: This project was helpful in getting me to understand how connecting to MongoDB works, as well as the importance of keeping the keys hidden. I feel like I have more of a handle on MongoDB after looking over and deploying this code.
+
+SIMON LOGIN: I really like how we are learning not just how to collect passwords but how to keep them secure as well. I am still a little confused as to the role of cookies in password collection and recollection. However, I understand more why we need to include secure, HTTPOnly, and sameSite.
+
+SIMON WEBSOCKETS: Websockets seem super cool and very useful. I didn't realize until the class lecture that live servers have been using websockets this whole time to update our websites while debugging. It also is wild to me how simple they are, yet how powerful they can be. THis was a fun opportunity to get to learn more about them.
