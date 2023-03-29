@@ -72,6 +72,35 @@ class User {
         userNameEl.innerText += "Mac and Cheese:\r\n" + recInstr;
     }
 
+    async saveRecipe(recipe) {
+        //const newRecipe = { name: userName, recipe: recipe };
+        try {
+            const response = await fetch('/api/recipe', {
+                method: 'POST',
+                headers: { 'content-type': 'application/json' },
+                //body: JSON.stringify(newRecipe),
+                body: JSON.stringify(recipe),
+            });
+    
+          // Store what the service gave us as the recipes
+          const recipes = await response.json();
+          localStorage.setItem('Recipes', JSON.stringify(recipes));
+        } catch {
+          // If there was an error then just track locally
+          this.updateRecipesLocal(newRecipe);
+        }
+    }
+    
+    updateRecipeslocal(newRecipe) {
+        let recipes = [];
+        const recipesText = localStorage.getItem('Recipes');
+        if (recipesText) {
+          recipes = JSON.parse(recipesText);
+        }
+        recipes.push(newRecipe);
+        localStorage.setItem('Recipes', JSON.stringify(recipes));
+    }
+
     changeR() {
         const editables = document.querySelectorAll("[contenteditable]");
         editables.forEach(el => {
@@ -91,6 +120,22 @@ class User {
             document.querySelector("#" + id).innerHTML = localStorage.getItem(key);
             if (document.querySelector("#" + id).innerHTML === "") {
                 document.querySelector("#" + id).style.visibility = "hidden";
+            }
+            else {
+                //update fixed storage
+                let myName = localStorage.getItem(key);
+                myName = myName.substring(0, myName.indexOf(":"))
+                let myRecipe = localStorage.getItem(key);
+                myRecipe = myRecipe.substring(myRecipe.indexOf(":")+1)
+                const newRecipe = {recipeN: myName, recipeI: myRecipe}
+                this.saveRecipe(newRecipe);
+                //let recipes = [];
+                //const recipesText = localStorage.getItem('Recipes');
+                //if (recipesText) {
+                //    recipes = JSON.parse(recipesText);
+                //}
+                //recipes.push(newRecipe);
+                //localStorage.setItem('Recipes', JSON.stringify(recipes));
             }
            }
         }

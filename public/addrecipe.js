@@ -23,9 +23,7 @@ function addf() {
 }
 
 async function saveRecipe(recipe) {
-    const userName = localStorage.getItem("userName");
     //const newRecipe = { name: userName, recipe: recipe };
-
     try {
         const response = await fetch('/api/recipe', {
             method: 'POST',
@@ -49,7 +47,6 @@ function updateRecipeslocal(newRecipe) {
     if (recipesText) {
       recipes = JSON.parse(recipesText);
     }
-
     recipes.push(newRecipe);
     localStorage.setItem('Recipes', JSON.stringify(recipes));
 }

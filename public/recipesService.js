@@ -23,28 +23,27 @@ async function loadRecipes() {
   
     if (recipes.length) {
         const matches = document.querySelectorAll('#column1');
-        const scoreTdEl = document.createElement('td');
-        const rowEl = document.createElement('tr');
+        //const scoreTdEl = document.createElement('td');
+        //const rowEl = document.createElement('tr');
         
       // Update the DOM with the scores
-      for (const recipe of recipes) {
-        let myA = recipe; //modifyable list
+      //for (const recipe of recipes) {
+        //let myA = recipe; //modifyable list
+        let i = 0;
         matches.forEach((userItem) => {
-            //myA[0] = myA[0].replace("\"", "");
-            //myA[0] = myA[0].replace("{","");
-            //myA[0] = myA[0].replace("}","");
-            //myA[1] = myA[1].replace("\"", "");
-            //myA[1] = myA[1].replace("{","");
-            //myA[1] = myA[1].replace("}","");
-            let myA0 = myA.recipeN;
-            myA0 = myA0.substring(myA0.indexOf(":"))
-            let myA1 = myA.recipeI;
-            myA1 = myA1.substring(myA1.indexOf(":"))
-            scoreTdEl.textContent = myA0 + ":\n" + myA1
-        });
-        rowEl.appendChild(scoreTdEl);
-        tableBodyEl.appendChild(rowEl);
-        }
+            if (i < recipes.length) {
+                let myA = recipes[i];
+                let myA0 = myA.recipeN;
+                myA0 = myA0.substring(myA0.indexOf(":"))
+                let myA1 = myA.recipeI;
+                myA1 = myA1.substring(myA1.indexOf(":"))
+                userItem.contentEditable = true;
+                userItem.textContent = myA0 + ":\n" + myA1
+            }
+        //rowEl.appendChild(scoreTdEl);
+        //tableBodyEl.appendChild(rowEl);
+            ++i;
+        }) 
     } else {
       tableBodyEl.innerHTML = '<tr><td colSpan=4>No Recipes</td></tr>';
     }
