@@ -19,7 +19,7 @@ apiRouter.get('/recipes', (_req, res) => {
   res.send(recipes);
 });
 
-// SubmitScore
+// SubmitRecipe
 apiRouter.post('/recipe', (req, res) => {
   recipes = updateRecipes(req.body, recipes);
   res.send(recipes);
