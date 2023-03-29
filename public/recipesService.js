@@ -1,50 +1,53 @@
-async function loadScores() {
-    let scores = [];
+async function loadRecipes() {
+    let recipes = [];
     try {
-      // Get the latest high scores from the service
-      const response = await fetch('/api/scores');
-      scores = await response.json();
+      // Get the latest recipes from the service
+      const response = await fetch('/api/recipes');
+      recipes = await response.json();
   
       // Save the scores in case we go offline in the future
-      localStorage.setItem('scores', JSON.stringify(scores));
+      localStorage.setItem('Recipes', JSON.stringify(recipes));
     } catch {
       // If there was an error then just use the last saved scores
-      const scoresText = localStorage.getItem('scores');
-      if (scoresText) {
-        scores = JSON.parse(scoresText);
+      const recipesText = localStorage.getItem('Recipes');
+      if (recipesText) {
+        recipes = JSON.parse(recipesText);
       }
     }
   
-    displayScores(scores);
+    displayRecipes(recipes);
   }
   
-  function displayScores(scores) {
-    const tableBodyEl = document.querySelector('#scores');
+  function displayRecipes(recipes) {
+    const tableBodyEl = document.querySelector('#recipes');
   
-    if (scores.length) {
-      // Update the DOM with the scores
-      for (const [i, score] of scores.entries()) {
-        const positionTdEl = document.createElement('td');
-        const nameTdEl = document.createElement('td');
+    if (recipes.length) {
+        const matches = document.querySelectorAll('#column1');
         const scoreTdEl = document.createElement('td');
-        const dateTdEl = document.createElement('td');
-  
-        positionTdEl.textContent = i + 1;
-        nameTdEl.textContent = score.name;
-        scoreTdEl.textContent = score.score;
-        dateTdEl.textContent = score.date;
-  
         const rowEl = document.createElement('tr');
-        rowEl.appendChild(positionTdEl);
-        rowEl.appendChild(nameTdEl);
+        
+      // Update the DOM with the scores
+      for (const recipe of recipes) {
+        let myA = recipe; //modifyable list
+        matches.forEach((userItem) => {
+            //myA[0] = myA[0].replace("\"", "");
+            //myA[0] = myA[0].replace("{","");
+            //myA[0] = myA[0].replace("}","");
+            //myA[1] = myA[1].replace("\"", "");
+            //myA[1] = myA[1].replace("{","");
+            //myA[1] = myA[1].replace("}","");
+            let myA0 = myA.recipeN;
+            myA0 = myA0.substring(myA0.indexOf(":"))
+            let myA1 = myA.recipeI;
+            myA1 = myA1.substring(myA1.indexOf(":"))
+            scoreTdEl.textContent = myA0 + ":\n" + myA1
+        });
         rowEl.appendChild(scoreTdEl);
-        rowEl.appendChild(dateTdEl);
-  
         tableBodyEl.appendChild(rowEl);
-      }
+        }
     } else {
-      tableBodyEl.innerHTML = '<tr><td colSpan=4>Be the first to score</td></tr>';
+      tableBodyEl.innerHTML = '<tr><td colSpan=4>No Recipes</td></tr>';
     }
   }
   
-  loadScores();
+  loadRecipes();

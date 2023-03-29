@@ -38,18 +38,6 @@ app.listen(port, () => {
 // The high scores are saved in memory and disappear whenever the service is restarted.
 let recipes = [];
 function updateRecipes(newRecipe, recipes) {
-  let found = false;
-  for (const [i, prevScore] of recipes.entries()) {
-    if (newRecipe.recipe > prevRecipe.recipe) {
-      recipes.splice(i, 0, newRecipe);
-      found = true;
-      break;
-    }
-  }
-
-  if (!found) {
     recipes.push(newRecipe);
-  }
-
-  return recipes;
+    return recipes;
 }

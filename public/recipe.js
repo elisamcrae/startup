@@ -94,38 +94,7 @@ class User {
             }
            }
         }
-    }
-
-    async saveRecipe(recipe) {
-        const userName = this.getUserName();
-        const newRecipe = { name: userName, recipe: recipe };
-    
-        try {
-            const response = await fetch('/api/recipe', {
-                method: 'POST',
-                headers: { 'content-type': 'application/json' },
-                body: JSON.stringify(newRecipe),
-            });
-    
-          // Store what the service gave us as the recipes
-          const recipes = await response.json();
-          localStorage.setItem('recipes', JSON.stringify(recipes));
-        } catch {
-          // If there was an error then just track locally
-          this.updateRecipesLocal(newRecipe);
-        }
-    }
-    
-    updateRecipeslocal(newRecipe) {
-        let recipes = [];
-        const recipesText = localStorage.getItem('recipes');
-        if (recipesText) {
-          recipes = JSON.parse(recipesText);
-        }
-    
-        recipes.push(newRecipe);
-        localStorage.setItem('recipes', JSON.stringify(recipes));
-    }
+    }    
 }    
 
 const user = new User();
