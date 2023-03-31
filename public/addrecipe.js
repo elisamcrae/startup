@@ -5,7 +5,7 @@ function addRecipe() {
     if (localStorage.getItem("Recipes")) {
         rArrays = localStorage.getItem("Recipes");
         rArrays += recipeName.value + "," + recipeInstructions.value + ",";
-        localStorage.setItem("Recipes", rArrays);
+        //localStorage.setItem("Recipes", rArrays);
     } else {
         toStr = recipeName.value + "," + recipeInstructions.value + ","
         localStorage.setItem("Recipes", toStr)
@@ -16,19 +16,11 @@ function addRecipe() {
     updateRecipeslocal({recipeN, recipeI});
 }
 
-function addf() {
-    const fName = document.querySelector('#friend_name');
-        let rArrays = "";
-    localStorage.setItem("Friends", fName.value);
-}
-
 async function saveRecipe(recipe) {
-    //const newRecipe = { name: userName, recipe: recipe };
     try {
         const response = await fetch('/api/recipe', {
             method: 'POST',
             headers: { 'content-type': 'application/json' },
-            //body: JSON.stringify(newRecipe),
             body: JSON.stringify(recipe),
         });
 
@@ -37,7 +29,7 @@ async function saveRecipe(recipe) {
       localStorage.setItem('Recipes', JSON.stringify(recipes));
     } catch {
       // If there was an error then just track locally
-      this.updateRecipesLocal(newRecipe);
+      this.updateRecipesLocal(recipe);
     }
 }
 
@@ -50,3 +42,4 @@ function updateRecipeslocal(newRecipe) {
     recipes.push(newRecipe);
     localStorage.setItem('Recipes', JSON.stringify(recipes));
 }
+

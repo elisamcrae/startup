@@ -37,7 +37,7 @@ async function loadRecipes() {
                 myA0 = myA0.substring(myA0.indexOf(":"))
                 let myA1 = myA.recipeI;
                 myA1 = myA1.substring(myA1.indexOf(":"))
-                userItem.contentEditable = true;
+                //userItem.contentEditable = true;
                 userItem.textContent = myA0 + ":\n" + myA1
             }
         //rowEl.appendChild(scoreTdEl);

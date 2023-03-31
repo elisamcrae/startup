@@ -1,5 +1,6 @@
 class User {
     recipes = [];
+    friends = [];
     userName;
     counter = 0;
     constructor() {
@@ -10,7 +11,8 @@ class User {
             console.log("this");
         }
         else {
-            this.printRecipes();
+            //this.printRecipes();
+            this.loadRecipes();
         }
         this.changeR();
     }
@@ -73,12 +75,10 @@ class User {
     }
 
     async saveRecipe(recipe) {
-        //const newRecipe = { name: userName, recipe: recipe };
         try {
             const response = await fetch('/api/recipe', {
                 method: 'POST',
                 headers: { 'content-type': 'application/json' },
-                //body: JSON.stringify(newRecipe),
                 body: JSON.stringify(recipe),
             });
     
@@ -101,6 +101,122 @@ class User {
         localStorage.setItem('Recipes', JSON.stringify(recipes));
     }
 
+    async loadRecipes() {
+        let recipes = [];
+        try {
+          // Get the latest recipes from the service
+          const response = await fetch('/api/recipes');
+          recipes = await response.json();
+      
+          // Save the scores in case we go offline in the future
+          localStorage.setItem('Recipes', JSON.stringify(recipes));
+        } catch {
+          // If there was an error then just use the last saved scores
+          const recipesText = localStorage.getItem('Recipes');
+          if (recipesText) {
+            recipes = JSON.parse(recipesText);
+          }
+        }
+      
+        this.displayRecipes(recipes);
+      }
+      
+      displayRecipes(recipes) {
+        const tableBodyEl = document.querySelector('#recipes');
+      
+        if (recipes.length) {
+            const matches = document.querySelectorAll('#column1');
+            //const scoreTdEl = document.createElement('td');
+            //const rowEl = document.createElement('tr');
+            
+          // Update the DOM with the scores
+          //for (const recipe of recipes) {
+            //let myA = recipe; //modifyable list
+            let i = 0;
+            matches.forEach((userItem) => {
+                if (i < recipes.length) {
+                    let myA = recipes[i];
+                    let myA0 = myA.recipeN;
+                    myA0 = myA0.substring(myA0.indexOf(":"))
+                    let myA1 = myA.recipeI;
+                    myA1 = myA1.substring(myA1.indexOf(":"))
+                    //userItem.contentEditable = true;
+                    userItem.textContent = myA0 + ":\n" + myA1
+                }
+            //rowEl.appendChild(scoreTdEl);
+            //tableBodyEl.appendChild(rowEl);
+                ++i;
+            }) 
+        } else {
+          tableBodyEl.innerHTML = '<tr><td colSpan=4>No Recipes</td></tr>';
+        }
+      }
+
+      async saveFriend(recipe) {
+        const recipes1 = {recipe};
+        recipe.loadRecipes();
+        try {
+            const response = await fetch('/api/friend', {
+                method: 'POST',
+                headers: { 'content-type': 'application/json' },
+                body: JSON.stringify(recipes1),
+                //body: recipe,
+            });
+    
+          // Store what the service gave us as the recipes
+          const recipes = await response.json();
+          localStorage.setItem('Recipes', recipes);
+        } catch {
+          // If there was an error then just track locally
+          this.updateFriendsLocal(recipe);
+        }
+    }
+    
+    updateFriendslocal(newRecipe) {
+        let recipes = [];
+        const recipesText = localStorage.getItem('Friends');
+        if (recipesText) {
+          recipes = recipesText;
+        }
+        else {
+            recipes.push(newRecipe);
+        }
+        localStorage.setItem('Friends', recipes);
+    }
+
+    displayFriends(friends) {
+        const nameTdEl = document.querySelector('.friend-name');
+      
+        if (friends.length) {
+          // Update the DOM with the scores
+          for (const friend of friends) {      
+            nameTdEl.textContent = friend;
+          }
+        } else if (nameTdEl != null) {
+          nameTdEl.textContent = 'You have not added any friends yet';
+        }
+    }   
+
+    async getFriends() {
+        let friends = [];
+        try {
+            // Get the latest high scores from the service
+            const response = await fetch('/api/friends');
+            friends = await response.json();
+
+            // Save the scores in case we go offline in the future
+            localStorage.setItem('friends', JSON.stringify(friends));
+        } catch {
+            // If there was an error then just use the last saved scores
+            const friendsText = localStorage.getItem('friends');
+            if (friendsText) {
+            friends = JSON.parse(friendsText);
+            }
+        }
+
+        this.displayFriends(friends);
+    }
+      
     changeR() {
         const editables = document.querySelectorAll("[contenteditable]");
         editables.forEach(el => {

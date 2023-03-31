@@ -7,6 +7,8 @@ const port = process.argv.length > 2 ? process.argv[2] : 3000;
 // JSON body parsing using built-in middleware
 app.use(express.json());
 
+app.use(require("body-parser").json())
+
 // Serve up the front-end static content hosting
 app.use(express.static('public'));
 
@@ -14,16 +16,25 @@ app.use(express.static('public'));
 var apiRouter = express.Router();
 app.use(`/api`, apiRouter);
 
-// GetRecipes
+// GetRecipes or Friends
 apiRouter.get('/recipes', (_req, res) => {
   res.send(recipes);
 });
 
-// SubmitRecipe
+apiRouter.get('/friends', (_req, res) => {
+    res.send(friends);
+  });
+
+// SubmitRecipe or Friend
 apiRouter.post('/recipe', (req, res) => {
   recipes = updateRecipes(req.body, recipes);
   res.send(recipes);
 });
+
+apiRouter.post('/friend', (req, res) => {
+    friends = updateFriends(req.body, friends);
+    res.send(friends);
+  });
 
 // Return the application's default page if the path is unknown
 app.use((_req, res) => {
@@ -40,4 +51,10 @@ let recipes = [];
 function updateRecipes(newRecipe, recipes) {
     recipes.push(newRecipe);
     return recipes;
+}
+
+let friends = [];
+function updateFriends(newFriend, friends) {
+    friends.push(newFriend);
+    return friends;
 }
