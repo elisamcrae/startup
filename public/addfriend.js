@@ -82,8 +82,8 @@ class User {
       
         if (friends.length) {
           // Update the DOM with the scores
-          for (const friend of friends) {      
-            nameTdEl.textContent = Object.values(friend);
+          for (const f of friends) {      
+            nameTdEl.innerText += f.friend + "\n";
           }
         } else {
           nameTdEl.textContent = 'You have not added any friends yet';

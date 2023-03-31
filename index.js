@@ -1,5 +1,6 @@
 const express = require('express');
 const app = express();
+const DB = require('./database.js');
 
 // The service port. In production the front-end code is statically hosted by the service on the same port.
 const port = process.argv.length > 2 ? process.argv[2] : 3000;
@@ -17,22 +18,26 @@ var apiRouter = express.Router();
 app.use(`/api`, apiRouter);
 
 // GetRecipes or Friends
-apiRouter.get('/recipes', (_req, res) => {
-  res.send(recipes);
+apiRouter.get('/recipes', async (_req, res) => {
+    const recipes = await DB.getRecipes();
+    res.send(recipes);
 });
 
-apiRouter.get('/friends', (_req, res) => {
+apiRouter.get('/friends', async (_req, res) => {
+    const friends = await DB.getFriends();
     res.send(friends);
   });
 
 // SubmitRecipe or Friend
-apiRouter.post('/recipe', (req, res) => {
-  recipes = updateRecipes(req.body, recipes);
-  res.send(recipes);
+apiRouter.post('/recipe', async (req, res) => {
+    DB.addRecipe(req.body);
+    const recipes = await DB.getRecipes();
+    res.send(recipes);
 });
 
-apiRouter.post('/friend', (req, res) => {
-    friends = updateFriends(req.body, friends);
+apiRouter.post('/friend', async (req, res) => {
+    DB.addFriend(req.body);
+    const friends = await DB.getFriends();
     res.send(friends);
   });
 

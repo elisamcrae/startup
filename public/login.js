@@ -19,13 +19,11 @@ function addf() {
 
 async function saveFriend(friend) {
   const recipes1 = {friend};
-  //const testrun = {friend: "AlexDunphy"}
   try {
       const response = await fetch('/api/friend', {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
           body: JSON.stringify(recipes1),
-          //body: recipes1,
       });
 
     // Store what the service gave us as the recipes
