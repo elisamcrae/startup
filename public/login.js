@@ -18,20 +18,25 @@ function addf() {
 }
 
 async function saveFriend(friend) {
-  const recipes1 = {friend};
-  try {
+  if (localStorage.getItem("Friends").includes(friend)) {
+    console.log("Friend already in list")
+  }
+  else {
+    const recipes1 = {friend};
+    try {
       const response = await fetch('/api/friend', {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
           body: JSON.stringify(recipes1),
       });
 
-    // Store what the service gave us as the recipes
-    const recipes = await response.json();
-    localStorage.setItem('Friends', recipes);
-  } catch {
+      // Store what the service gave us as the recipes
+      const recipes = await response.json();
+      localStorage.setItem('Friends', recipes);
+    } catch {
     // If there was an error then just track locally
     this.updateFriendsLocal(recipes1);
+    }
   }
 }
 
