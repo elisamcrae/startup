@@ -97,6 +97,14 @@ footer a {
   flex-wrap: wrap;
 }
 
+#column2.row:not(:empty) {
+  align-items: center;
+  display: grid;
+  gap: 15px;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
 #friendR {
   width: 35pc;
 }
@@ -123,6 +131,20 @@ img {
   align-items: center;
 }
 #column1:not(:empty) {
+  width: 400px;
+  border-width: 3px;
+  border-style: solid;
+  border-color:rgb(217, 161, 21);
+  flex-direction: row;
+  --bs-bg-opacity: 1;
+  background-color: rgba(var(--bs-light-rgb),var(--bs-bg-opacity))!important;
+  margin: 0;
+  float: left;
+  display: flex;
+  padding: 1em;
+}
+
+#column2:not(:empty) {
   width: 400px;
   border-width: 3px;
   border-style: solid;
