@@ -34,11 +34,17 @@ async function loadRecipes() {
             if (i < recipes.length) {
                 let myA = recipes[i];
                 let myA0 = myA.recipeN;
-                myA0 = myA0.substring(myA0.indexOf(":"))
+                //myA0 = myA0.substring(myA0.indexOf(":"))
                 let myA1 = myA.recipeI;
-                myA1 = myA1.substring(myA1.indexOf(":"))
+                const myU = myA.userName;
+                if (myU === localStorage.getItem("username")) {
+                    userItem.textContent = myA0 + ":\n" + myA1
+                }
+            if (userItem.textContent === "") {
+                tableBodyEl.innerHTML = '<tr><td colSpan=4>No Recipes</td></tr>';
+            }
+                //myA1 = myA1.substring(myA1.indexOf(":"))
                 //userItem.contentEditable = true;
-                userItem.textContent = myA0 + ":\n" + myA1
             }
         //rowEl.appendChild(scoreTdEl);
         //tableBodyEl.appendChild(rowEl);

@@ -1,12 +1,18 @@
+const GameEndEvent = 'gameEnd';
+const GameStartEvent = 'gameStart';
+
 class User {
     recipes = [];
     friends = [];
     userName;
     counter = 0;
+    socket;
     constructor() {
         const userNameEl = document.querySelector('.user-name');
         userNameEl.textContent = this.getUserName();
-        this.getRecipe();
+        this.configureWebSocket();
+        //this.loadRecipes();
+        /*this.getRecipe();
         if (this.recipes.length === 0) {
             console.log("this");
         }
@@ -14,7 +20,8 @@ class User {
             //this.printRecipes();
             this.loadRecipes();
         }
-        this.changeR();
+        this.changeR();*/
+        //this.broadcastEvent(this.getUserName(), GameStartEvent);
     }
 
     getUserName() {
@@ -81,6 +88,8 @@ class User {
                 headers: { 'content-type': 'application/json' },
                 body: JSON.stringify(recipe),
             });
+
+            this.broadcastEvent(userName, "added a new recipe!");
     
           // Store what the service gave us as the recipes
           const recipes = await response.json();
@@ -162,6 +171,8 @@ class User {
                 body: JSON.stringify(recipes1),
                 //body: recipe,
             });
+
+            this.broadcastEvent(userName, "added a new friend!");
     
           // Store what the service gave us as the recipes
           const recipes = await response.json();
@@ -261,19 +272,17 @@ class User {
         const protocol = window.location.protocol === 'http:' ? 'ws' : 'wss';
         this.socket = new WebSocket(`${protocol}://${window.location.host}/ws`);
         this.socket.onopen = (event) => {
-          this.displayMsg('system', 'game', 'connected');
+          this.displayMsg('system', 'RecipeShare', 'connected');
         };
         this.socket.onclose = (event) => {
-          this.displayMsg('system', 'game', 'disconnected');
+          this.displayMsg('system', 'RecipeShare', 'disconnected');
         };
         this.socket.onmessage = async (event) => {
           const msg = JSON.parse(await event.data.text());
-          if (msg.type === GameEndEvent) {
-            this.displayMsg('player', msg.from, `scored ${msg.value.score}`);
-          } else if (msg.type === GameStartEvent) {
-            this.displayMsg('player', msg.from, `started a new game`);
-          }
+          if (msg.type === GameEndEvent || msg.type === GameStartEvent) {
+            this.displayMsg('user', msg.from, `logged in`);
         };
+    }
     }
     
     displayMsg(cls, from, msg) {
@@ -282,11 +291,10 @@ class User {
           `<div class="event"><span class="${cls}-event">${from}</span> ${msg}</div>` + chatText.innerHTML;
     }
     
-    broadcastEvent(from, type, value) {
+    broadcastEvent(from, type) {
         const event = {
           from: from,
           type: type,
-          value: value,
         };
         this.socket.send(JSON.stringify(event));
     }

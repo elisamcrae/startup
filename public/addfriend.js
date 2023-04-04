@@ -82,8 +82,13 @@ class User {
       
         if (friends.length) {
           // Update the DOM with the scores
-          for (const f of friends) {      
-            nameTdEl.innerText += f.friend + "\n";
+          for (const f of friends) {    
+            if (f.userName === localStorage.getItem("username"))   {
+              nameTdEl.innerText += f.friendName + "\n";
+            }
+          }
+          if (nameTdEl.innerText === "") {
+            nameTdEl.textContent = 'You have not added any friends yet';
           }
         } else {
           nameTdEl.textContent = 'You have not added any friends yet';

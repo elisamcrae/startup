@@ -30,6 +30,8 @@ function logout() {
 })();
 
 async function login() {
+  const nameEl = document.querySelector("#username");
+  localStorage.setItem("username", nameEl.value);
   loginOrCreate(`/api/auth/login`);
 }
 

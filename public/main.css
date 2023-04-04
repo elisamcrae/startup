@@ -212,3 +212,8 @@ input#username{
     flex: 1 20vh;
   }
 }
+
+#player-messages {
+  padding-top: 0.25em;
+  opacity: 0.7;
+}

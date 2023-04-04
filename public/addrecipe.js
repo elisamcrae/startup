@@ -1,7 +1,7 @@
 function addRecipe() {
     const recipeName = document.querySelector('#recipe_name');
     const recipeInstructions = document.querySelector('#rButton1');
-    let rArrays = "";
+    /*let rArrays = "";
     if (localStorage.getItem("Recipes")) {
         rArrays = localStorage.getItem("Recipes");
         rArrays += recipeName.value + "," + recipeInstructions.value + ",";
@@ -9,11 +9,12 @@ function addRecipe() {
     } else {
         toStr = recipeName.value + "," + recipeInstructions.value + ","
         localStorage.setItem("Recipes", toStr)
-    }
+    }*/
     recipeN = recipeName.value
     recipeI = recipeInstructions.value
-    saveRecipe({recipeN, recipeI});
-    updateRecipeslocal({recipeN, recipeI});
+    userName = localStorage.getItem("username")
+    saveRecipe({recipeN, recipeI, userName});
+    updateRecipeslocal({recipeN, recipeI, userName});
 }
 
 async function saveRecipe(recipe) {

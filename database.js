@@ -13,7 +13,7 @@ if (!userName) {
 const url = `mongodb+srv://${userName}:${password}@${hostname}`;
 
 const client = new MongoClient(url);
-const userCollection = client.db('simon').collection('user');
+const userCollection = client.db('startup').collection('user');
 const recipeCollection = client.db('startup').collection('recipe');
 const friendCollection = client.db('startup').collection('friend');
 

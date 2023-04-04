@@ -2,8 +2,10 @@ function addf() {
     const fName = document.querySelector('#friend_name');
     let rArrays = "";
     localStorage.setItem("Friend", fName.value);
-    saveFriend(fName.value);
-    updateFriendslocal(fName.value);
+    friendName = fName.value;
+    userName = localStorage.getItem("username");
+    saveFriend({friendName, userName});
+    updateFriendslocal({friendName, userName});
   }
   
   async function saveFriend(friend) {
@@ -11,7 +13,7 @@ function addf() {
       console.log("Friend already in list")
     }
     else {
-      const recipes1 = {friend};
+      const recipes1 = friend;
       try {
         const response = await fetch('/api/friend', {
             method: 'POST',
