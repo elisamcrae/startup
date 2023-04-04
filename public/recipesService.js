@@ -20,6 +20,7 @@ async function loadRecipes() {
   
   function displayRecipes(recipes) {
     const tableBodyEl = document.querySelector('#recipes');
+    let userItemIsEmpty = true;
   
     if (recipes.length) {
         const matches = document.querySelectorAll('#column1');
@@ -39,10 +40,8 @@ async function loadRecipes() {
                 const myU = myA.userName;
                 if (myU === localStorage.getItem("username")) {
                     userItem.textContent = myA0 + ":\n" + myA1
+                    userItemIsEmpty = false;
                 }
-            if (userItem.textContent === "") {
-                tableBodyEl.innerHTML = '<tr><td colSpan=4>No Recipes</td></tr>';
-            }
                 //myA1 = myA1.substring(myA1.indexOf(":"))
                 //userItem.contentEditable = true;
             }
@@ -52,6 +51,9 @@ async function loadRecipes() {
         }) 
     } else {
       tableBodyEl.innerHTML = '<tr><td colSpan=4>No Recipes</td></tr>';
+    }
+    if (userItemIsEmpty) {
+        tableBodyEl.innerHTML = '<tr><td colSpan=4>No Recipes</td></tr>';
     }
   }
   
