@@ -8,7 +8,7 @@ HaHaGit and VSC!
 
 From this assignment I learned how to better navigate VSCode and GitHub and how they can sync together. I still do not feel completely comfortable with it, but I now understand where the push, pull, and commit buttons are, and I am learning how to read the error messages in VSCode. This was very helpful to me.
 
-ELEVATOR PITCH:
+## ELEVATOR PITCH:
 Have you ever searched for hours for that recipe you used that one time? Or have you bugged an in-law to send you that mouth-watering recipe they made last Sunday? This is your solution! This website allows you to easily upload and share recipes with family and friends. You can quickly see recipes you have posted, as well as recipes from family/friends. Bon appetit!
 
 KEY FEATURES:
@@ -45,7 +45,7 @@ From making my startup project with HTML and CSS, I learned a lot more about how
 
 With the Simon JS, I learned that it is important to make sure you call the JS functions in the HTML file. I also learned the hard to way to make sure that the audio files (or any other called files) are named what you think they are.
 
-MIDTERM:
+## MIDTERM:
 
 You CAN use this to load CSS fonts from google: @import url('https://fonts.googleapis.com/css?family=Quicksand');
 
@@ -92,14 +92,20 @@ chmod +x deploy.sh makes a script executable
 c260.cs.byu.edu is a DNS subdomain (Domain Name System)
 To point to another DNS record, use CNAME//
 
-JS PROJECT:
+## JS PROJECT:
 This project was difficult for me, and I spent a lot of hours trying to figure out how to format my inserted text with javascript as well as how to save and edit variables entered in by the user. However, I was able to find creative solutions to my problems. I am most proud that I was able to make the recipes editable because I struggled even figuring out logically how to do it. I am also happy with how the text is printing out now. I learned that google is my friend, and also how to troubleshoot on the "inspect" option.
 
-SIMON SERVICE:
+## SIMON SERVICE:
 This project helped me understand more the purpose behind using nodes to host a website. I still do not have a full understanding of nodes but I definitely understand more. I also learned how to troubleshoot with VS Code which was helpful.
 
-SIMON DB: This project was helpful in getting me to understand how connecting to MongoDB works, as well as the importance of keeping the keys hidden. I feel like I have more of a handle on MongoDB after looking over and deploying this code.
+## SIMON DB: 
+This project was helpful in getting me to understand how connecting to MongoDB works, as well as the importance of keeping the keys hidden. I feel like I have more of a handle on MongoDB after looking over and deploying this code.
 
-SIMON LOGIN: I really like how we are learning not just how to collect passwords but how to keep them secure as well. I am still a little confused as to the role of cookies in password collection and recollection. However, I understand more why we need to include secure, HTTPOnly, and sameSite.
+## SIMON LOGIN: 
+I really like how we are learning not just how to collect passwords but how to keep them secure as well. I am still a little confused as to the role of cookies in password collection and recollection. However, I understand more why we need to include secure, HTTPOnly, and sameSite.
 
-SIMON WEBSOCKETS: Websockets seem super cool and very useful. I didn't realize until the class lecture that live servers have been using websockets this whole time to update our websites while debugging. It also is wild to me how simple they are, yet how powerful they can be. THis was a fun opportunity to get to learn more about them.
+## SIMON WEBSOCKETS: 
+Websockets seem super cool and very useful. I didn't realize until the class lecture that live servers have been using websockets this whole time to update our websites while debugging. It also is wild to me how simple they are, yet how powerful they can be. THis was a fun opportunity to get to learn more about them.
+
+## SERVICE/DB/LOGIN/WEBSOCKETS STARTUP:
+From my startup using third party apis, secure login, and MongoDB for databases, I gained an appreciation for the complexities of websites. There is a lot more that goes into them than just CSS and HTML. My favorite part was about secure login and learning how hashing is used to compare the inputted password to what is in the system.
