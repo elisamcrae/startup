@@ -1,7 +1,7 @@
 body {
   display: flex;
   flex-direction: column;
-  min-width: 700px;
+  width: 100%
 }
 
 header {
@@ -95,6 +95,14 @@ footer a {
   gap: 15px;
   flex-direction: row;
   flex-wrap: wrap;
+}
+
+#column1.row:empty {
+  display: none
+}
+
+#column2.row:empty {
+  display: none
 }
 
 #column2.row:not(:empty) {
@@ -216,4 +224,15 @@ input#username{
 #player-messages {
   padding-top: 0.25em;
   opacity: 0.7;
+  flex: 1;
+  width: 100%;
+  padding: 0.5em;
+}
+
+#recipeLabel{
+  display: block;
+}
+
+.friend-name {
+  font-size: 25px;
 }
