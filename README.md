@@ -109,3 +109,6 @@ Websockets seem super cool and very useful. I didn't realize until the class lec
 
 ## SERVICE/DB/LOGIN/WEBSOCKETS STARTUP:
 From my startup using third party apis, secure login, and MongoDB for databases, I gained an appreciation for the complexities of websites. There is a lot more that goes into them than just CSS and HTML. My favorite part was about secure login and learning how hashing is used to compare the inputted password to what is in the system.
+
+## SIMON REACT:
+I originally had issues with this project, so I learned that it is important to install all of your packages before trying to deploy the website. However, other than that, I was surprised by how much work needs to be done to change vanilla JS to react. There was a lot of reworking files to make them have the correct format, which was long and rather frustrating to me.
