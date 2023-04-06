@@ -1,6 +1,11 @@
+const GameEndEvent = 'gameEnd';
+const GameStartEvent = 'gameStart';
+
 class User {
     friends = ["RecipeShare"];
+    socket;
     constructor() {
+      this.configureWebSocket();
         this.getFriends();
         //this.printFriends();
         //this.saveFriend();
@@ -17,6 +22,51 @@ class User {
             this.userName = "Unknown";
             return "Unknown"
         }
+    }
+
+    addf() {
+      const fName = document.querySelector('#friend_name');
+      let rArrays = "";
+      localStorage.setItem("Friend", fName.value);
+      const friendName = fName.value;
+      const userName = localStorage.getItem("userName");
+      this.saveFriend({friendName, userName});
+      this.updateFriendslocal({friendName, userName});
+    }
+
+    async saveFriend(friend) {
+      if (localStorage.getItem("Friends").includes(friend)) {
+        console.log("Friend already in list")
+      }
+      else {
+        const recipes1 = friend;
+        try {
+          const response = await fetch('/api/friend', {
+              method: 'POST',
+              headers: { 'content-type': 'application/json' },
+              body: JSON.stringify(recipes1),
+          });
+    
+          // Store what the service gave us as the recipes
+          const recipes = await response.json();
+          localStorage.setItem('Friends', recipes);
+        } catch {
+        // If there was an error then just track locally
+        this.updateFriendsLocal(recipes1);
+        }
+      }
+    }
+
+    updateFriendslocal(newRecipe) {
+      let recipes = [];
+      const recipesText = localStorage.getItem('Friends');
+      if (recipesText) {
+        recipes = recipesText;
+      }
+      else {
+          friends.push(newRecipe);
+      }
+      localStorage.setItem('Friends', recipes);
     }
 
     /*async saveFriend() {
@@ -51,6 +101,37 @@ class User {
         localStorage.setItem('Friends', recipes);
     }*/
 
+    configureWebSocket() {
+      const protocol = window.location.protocol === 'http:' ? 'ws' : 'wss';
+      this.socket = new WebSocket(`${protocol}://${window.location.host}/ws`);
+      this.socket.onopen = (event) => {
+        this.displayMsg('system', 'RecipeShare', 'connected');
+      };
+      this.socket.onclose = (event) => {
+        this.displayMsg('system', 'RecipeShare', 'disconnected');
+      };
+      this.socket.onmessage = async (event) => {
+        const msg = JSON.parse(await event.data.text());
+        if (msg.type === GameEndEvent || msg.type === GameStartEvent) {
+          this.displayMsg('user', msg.from, `logged in`);
+      };
+    }
+  }
+  
+  displayMsg(cls, from, msg) {
+      const chatText = document.querySelector('#player-messages');
+      chatText.innerHTML =
+        `<div class="event"><span class="${cls}-event">${from}</span> ${msg}</div>` + chatText.innerHTML;
+  }
+  
+  broadcastEvent(from, type) {
+      const event = {
+        from: from,
+        type: type,
+      };
+      this.socket.send(JSON.stringify(event));
+  }  
+
     getFriends() {
         const recis = localStorage.getItem("Friend");
         if (Object.values(this.friends).includes(recis) === false && recis != null) {
@@ -83,7 +164,7 @@ class User {
         if (friends.length) {
           // Update the DOM with the scores
           for (const f of friends) {    
-            if (f.userName === localStorage.getItem("username"))   {
+            if (f.userName === localStorage.getItem("username") && f.friendName != undefined)   {
               nameTdEl.innerText += f.friendName + "\n";
             }
           }

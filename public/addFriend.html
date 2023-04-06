@@ -34,6 +34,7 @@
       </nav>
     </header>
     <main class="container-fluid text-white" style = "background-color: rgb(119, 155, 119);" id="friendForm">
+        <div id="player-messages"></div>
         <div class="row" id="friendR">
             <div class="column" id="friendC">
                 <h1>Your friends</h1>
@@ -46,7 +47,7 @@
                   <input type="text" id="friend_name" required>
                   <label for="recipe">Friend's Email:</label>
                   <input type="text" id="friend_email" required>
-                  <button class="btn btn-primary" onclick="addf()">Submit</button>
+                  <button class="btn btn-primary" onclick="user.addf()">Submit</button>
                 </form>
             </div>
         </div>

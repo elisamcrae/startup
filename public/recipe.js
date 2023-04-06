@@ -9,7 +9,9 @@ class User {
     socket;
     constructor() {
         const userNameEl = document.querySelector('.user-name');
-        userNameEl.textContent = this.getUserName();
+        if (userNameEl) {
+          userNameEl.textContent = this.getUserName();
+        }
         this.configureWebSocket();
         //this.loadRecipes();
         /*this.getRecipe();
@@ -89,7 +91,7 @@ class User {
                 body: JSON.stringify(recipe),
             });
 
-            this.broadcastEvent(userName, "added a new recipe!");
+            this.broadcastEvent(localStorage.getItem("userName"), "added a new recipe!");
     
           // Store what the service gave us as the recipes
           const recipes = await response.json();
@@ -128,9 +130,9 @@ class User {
         }
       
         this.displayRecipes(recipes);
-      }
+    }
       
-      displayRecipes(recipes) {
+    displayRecipes(recipes) {
         const tableBodyEl = document.querySelector('#recipes');
       
         if (recipes.length) {
@@ -159,40 +161,42 @@ class User {
         } else {
           tableBodyEl.innerHTML = '<tr><td colSpan=4>No Recipes</td></tr>';
         }
-      }
+    }
 
-      async saveFriend(recipe) {
-        const recipes1 = {recipe};
-        recipe.loadRecipes();
+    /*async saveRecipe(recipe) {
+      //const recipeName = recipe.recipeN
+      //const recipeIn = recipe.recipeI
+        //const recipes1 = {recipeName, recipeIn};
+        //recipe.loadRecipes();
         try {
-            const response = await fetch('/api/friend', {
+            const response = await fetch('/api/recipe', {
                 method: 'POST',
                 headers: { 'content-type': 'application/json' },
-                body: JSON.stringify(recipes1),
+                body: JSON.stringify(recipe),
                 //body: recipe,
             });
 
-            this.broadcastEvent(userName, "added a new friend!");
+            this.broadcastEvent(localStorage.getItem("userName"), "added a new recipe!");
     
           // Store what the service gave us as the recipes
           const recipes = await response.json();
-          localStorage.setItem('Recipes', recipes);
+          localStorage.setItem('Recipes', JSON.stringify(recipes));
         } catch {
           // If there was an error then just track locally
-          this.updateFriendsLocal(recipe);
+          this.updateRecipesLocal(recipe);
         }
-    }
+    }*/
     
-    updateFriendslocal(newRecipe) {
+    updateRecipeslocal(newRecipe) {
         let recipes = [];
-        const recipesText = localStorage.getItem('Friends');
+        const recipesText = localStorage.getItem('Recipes');
         if (recipesText) {
           recipes = recipesText;
         }
         else {
             recipes.push(newRecipe);
         }
-        localStorage.setItem('Friends', recipes);
+        localStorage.setItem('Recipes', recipes);
     }
 
     displayFriends(friends) {
@@ -267,6 +271,16 @@ class User {
            }
         }
     } 
+
+    addRecipe() {
+      const recipeName = document.querySelector('#recipe_name');
+      const recipeInstructions = document.querySelector('#rButton1');
+      const recipeN = recipeName.value
+      const recipeI = recipeInstructions.value
+      const userName = localStorage.getItem("username")
+      this.saveRecipe({recipeN, recipeI, userName});
+      this.updateRecipeslocal({recipeN, recipeI, userName});
+  }
     
     configureWebSocket() {
         const protocol = window.location.protocol === 'http:' ? 'ws' : 'wss';
@@ -278,10 +292,11 @@ class User {
           this.displayMsg('system', 'RecipeShare', 'disconnected');
         };
         this.socket.onmessage = async (event) => {
+          console.log('received', event.data);
           const msg = JSON.parse(await event.data.text());
-          if (msg.type === GameEndEvent || msg.type === GameStartEvent) {
-            this.displayMsg('user', msg.from, `logged in`);
-        };
+          //if (msg.type === GameEndEvent || msg.type === GameStartEvent) {
+          this.displayMsg('user', msg.from, `added a new recipe`);
+        //};
     }
     }
     

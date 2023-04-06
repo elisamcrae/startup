@@ -35,15 +35,17 @@
       </nav>
     </header>
     <main class="container-fluid text-white" style = "background-color: rgb(119, 155, 119);">
+      <div id="player-messages"></div>
       <h1>New Recipe</h1>
       <form method="get" action="recipe.html" id="submitButton">
         <label for="recipe name" id="recipeLabel">Recipe Name:</label>
         <input type="text" id="recipe_name" required>
         <label for="recipe" id="recipeLabel">Recipe:</label>
         <textarea id="rButton1" name = "rButton1" rows="3" cols="40" required></textarea>
-        <button class="btn btn-primary" id="subRecipe" onclick="addRecipe()">Submit</button>
+        <button class="btn btn-primary" id="subRecipe" onclick="user.addRecipe()">Submit</button>
       </form>
     </main>
+    <script src="recipe.js"></script>
   </body>
   <footer class="bg-dark text-dark text-muted">
     <div class="container-fluid">

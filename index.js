@@ -86,25 +86,25 @@ secureApiRouter.use(async (req, res, next) => {
 });
 
 // GetRecipes or Friends
-apiRouter.get('/recipes', async (_req, res) => {
+secureApiRouter.get('/recipes', async (_req, res) => {
     const recipes = await DB.getRecipes();
     res.send(recipes);
 });
 
-apiRouter.get('/friends', async (_req, res) => {
+secureApiRouter.get('/friends', async (_req, res) => {
     const friends = await DB.getFriends();
     res.send(friends);
   });
 
 // SubmitRecipe or Friend
-apiRouter.post('/recipe', async (req, res) => {
-    DB.addRecipe(req.body);
+secureApiRouter.post('/recipe', async (req, res) => {
+    await DB.addRecipe(req.body);
     const recipes = await DB.getRecipes();
     res.send(recipes);
 });
 
-apiRouter.post('/friend', async (req, res) => {
-    DB.addFriend(req.body);
+secureApiRouter.post('/friend', async (req, res) => {
+    await DB.addFriend(req.body);
     const friends = await DB.getFriends();
     res.send(friends);
 });
