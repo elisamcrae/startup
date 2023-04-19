@@ -1837,4 +1837,1682 @@ fetch('https://jsonplaceholder.typicode.com/posts', {
     console.log(jsonResponse);
   });
  
- SERVICE DESIGN: 
+ SERVICE DESIGN: Web services provide the interactive functionality of your web application. They commonly authenticate users, track their session state, provide, store, and analyze data, connect peers, and aggregate user information. Making your web service easy to use, performant, and extensible are factors that determine the success of your application. A good design will result in increased productivity, satisfied users, and lower processing costs.
+
+Model and sequence diagrams
+When first considering your service design it is helpful to model the application's primary objects and the interactions of the objects. You should attempt to stay as close to the model that is in your user's mind as possible. Avoid introducing a model that focuses on programming constructs and infrastructure. For example, a chat program should model participants, conversations, and messages. It should not model user devices, network connections, and data blobs.
+
+Once you have defined your primary objects you can create sequence diagrams that show how the objects interact with each other. This will help clarify your model and define the necessary endpoints. You can use a simple tool like SequenceDiagram.org to create and share diagrams.
+
+Sequence Diagram
+
+Leveraging HTTP
+Web services are usually provided over HTTP, and so HTTP greatly influences the design of the service. The HTTP verbs such as GET, POST, PUT, and DELETE often mirror the designed actions of a web service. For example, a web service for managing comments might list the comments (GET), create a comment (POST), update a comment (PUT), and delete a comment (DELETE). Likewise, the MIME content types defined by IANA are a natural fit for defining the types of content that you want to provide (e.g. HTML, PNG, MP3, and MP4). The goal is to leverage those technologies as much as possible so that you don't have to recreate the functionality they provide and instead take advantage of the significant networking infrastructure built up around HTTP. This includes caching servers that increase your performance, edge servers that bring your content closer, and replication servers that provide redundant copies of your content and make your application more resilient to network failures.
+
+
+
+Endpoints
+A web service is usually divided up into multiple service endpoints. Each endpoint provides a single functional purpose. All of the criteria that you would apply to creating well designed code functions also applies when exposing service endpoints.
+
+
+
+⚠ Note that service endpoints are often called an Application Programming Interface (API). This is a throwback to old desktop applications and the programming interfaces that they exposed. Sometimes the term API refers to the entire collection of endpoints, and sometimes it is used to refer to a single endpoint.
+
+Here are some things you should consider when designing your service's endpoints.
+
+Grammatical - With HTTP everything is a resource (think noun or object). You act on the resource with an HTTP verb. For example, you might have an order resource that is contained in a store resource. You then create, get, update, and delete order resources on the store resource.
+
+Readable - The resource you are referencing with an HTTP request should be clearly readable in the URL path. For example, an order resource might contain the path to both the order and store where the order resource resides: /store/provo/order/28502. This makes it easier to remember how to use the endpoint because it is human readable.
+
+Discoverable - As you expose resources that contain other resources you can provide the endpoints for the aggregated resources. This makes it so someone using your endpoints only needs to remember the top level endpoint and then they can discover everything else. For example, if you have a store endpoint that returns information about a store you can include an endpoint for working with a store in the response.
+
+GET /store/provo  HTTP/2
+{
+  "id": "provo",
+  "address": "Cougar blvd",
+  "orders": "https://cs260.click/store/provo/orders",
+  "employees": "https://cs260.click/store/provo/employees"
+}
+Compatible - When you build your endpoints you want to make it so that you can add new functionality without breaking existing clients. Usually this means that the clients of your service endpoints should ignore anything that they don't understand. Consider the two following JSON response versions.
+
+Version 1
+
+{
+  "name": "John Taylor"
+}
+Version 2
+
+{
+  "name": "John Taylor",
+  "givenName": "John",
+  "familyName": "Taylor"
+}
+By adding a new representation of the name field, you provide new functionality for clients that know how to use the new fields without harming older clients that ignore the new fields and simply use the old representation. This is all done without officially versioning the endpoint.
+
+If you are fortunate enough to be able to control all of your client code you can mark the name field as depreciated and in a future version remove it once all of the clients have upgraded. Usually you want to keep compatibility with at least one previous version of the endpoint so that there is enough time for all of the clients to migrate before compatibility is removed.
+
+Simple - Keeping your endpoints focused on the primary resources of your application helps to avoid the temptation to add endpoints that duplicate or create parallel access to primary resources. It is very helpful to write some simple class and sequence diagrams that outline your primary resources before you begin coding. These resources should focus on the actual resources of the system you are modeling. They should not focus on the data structure or devices used to host the resources. There should only be one way to act on a resource. Endpoints should only do one thing.
+
+Documented - The Open API Specification is a good example of tooling that helps create, use, and maintain documentation of your service endpoints. It is highly suggested that you make use of such tools in order to provide client libraries for your endpoints and a sandbox for experimentation. Creating an initial draft of your endpoint documentation before you begin coding will help you mentally clarify your design and produce a better final result. Providing access to your endpoint documentation along with your production system helps with client implementations and facilitates easier maintenance of the service. The Swagger Petstore example documentation is a reasonable example to follow.
+
+There are many models for exposing endpoints. We will consider three common ones, RPC, REST, and GraphQL.
+
+RPC
+Remote Procedure Calls (RPC) expose service endpoints as simple function calls. When RPC is used over HTTP it usually just leverages the POST HTTP verb. The actual verb and subject of the function call is represented by the function name. For example, deleteOrder or updateOrder. The name of the function is either the entire path of the URL or a parameter in the POST body.
+
+POST /updateOrder HTTP/2
+
+{"id": 2197, "date": "20220505"}
+or
+
+POST /rpc HTTP/2
+
+{"cmd":"updateOrder", "params":{"id": 2197, "date": "20220505"}}
+One advantage of RPC is that it maps directly to function calls that might exist within the server. This could also be considered a disadvantage as it directly exposes the inner workings of the service, and thus creates a coupling between the endpoints and the implementation.
+
+REST
+Representational State Transfer (REST) attempts to take advantage of the foundational principles of HTTP. This is not surprising considering the principle author of REST, Roy Fielding, was also a contributor to the HTTP specification. REST HTTP verbs always act upon a resource. Operations on a resource impact the state of the resource as it is transferred by a REST endpoint call. This allows for the caching functionality of HTTP to work optimally. For example, GET will always return the same resource until a PUT is executed on the resource. When PUT is used, the cached resource is replaced with the updated resource.
+
+With REST the updateOrder endpoint would look like the following.
+
+PUT /order/2197 HTTP/2
+
+{"date": "20220505"}
+Where the proper HTTP verb is used and the URL path uniquely identifies the resource. These seem like small differences, but maximizing HTTP pays dividends by making it easy for HTTP infrastructure, such as caching, to work properly.
+
+There are several other pieces of Fielding's dissertation on REST, such as hypermedia, that are often quoted as being required for a truly "restful" implementation, and these are just as often ignored.
+
+GraphQL
+GraphQL focuses on the manipulation of data instead of a function call (RPC) or a resource (REST). The heart of GraphQL is a query that specifies the desired data and how it should be joined and filtered. GraphQL was developed to address frustration concerning the massive number of REST, or RPC calls, that a web application client needed to make in order to support even a simple UI widget.
+
+Instead of making a call for getting a store, and then a bunch of calls for getting the store's orders and employees, GraphQL would send a single query that would request all of that information in one big JSON response. The server would examine the query, join the desired data, and then filter out anything that was not wanted.
+
+Here is an example GraphQL query.
+
+query {
+  getOrder(id: "2197") {
+    orders(filter: { date: { allofterms: "20220505" } }) {
+      store
+      description
+      orderedBy
+    }
+  }
+}
+GraphQL helps to remove a lot of the logic for parsing endpoints and mapping requests to specific resources. Basically in GraphQL there is only one endpoint. The query endpoint.
+
+The downside of that flexibility is that the client now has significant power to consume resources on the server. There is no clear boundary on what, how much, or how complicated the aggregation of data is. It also is difficult for the server to implement authorization rights to data as they have to be baked into the data schema. However, there are standards for how to define a complex schema. Common GraphQL packages provide support for schema implementations along with database adaptors for query support.
+       
+NODE.JS: In 2009 Ryan Dahl created Node.js. It was the first successful application for deploying JavaScript outside of a browser. This changed the JavaScript mindset from a browser technology to one that could run on the server as well. This means that JavaScript can power your entire technology stack. One language to rule them all. Node.js is often just referred to as Node, and is currently maintained by the Open.js Foundation.
+
+Ryan Dahl
+
+“You can never understand everything. But, you should push yourself to understand the system”
+
+— Ryan Dahl
+
+Browsers run JavaScript using a JavaScript interpreter and execution engine. For example, Chromium based browsers all use the V8 engine created by Google. Node.js simply took the V8 engine and ran it inside of a console application. When you run a JavaScript program in Chrome or Node.js, it is V8 that reads your code and executes it. With either program wrapping V8, the result is the same.
+
+Node.js
+
+Installing NVM and Node.js
+Your production environment web server comes with Node.js already install. However, you will need to install Node.js in your development environment if you have not already. The easiest way to install Node.js is to first install the Node Version Manager (NVM) and use it to install, and manage, Node.js.
+
+Installing on Windows
+If you are using Windows, then follow the installation instructions from the windows-nvm repository. Click on latest installer and then scroll down to the Assets and download and execute nvm-setup.exe. Once the installation is complete, you will need to open a new console window so that it gets the updated path that includes NVM.
+
+In the console application install the long term support (LTS) version of Node.
+
+➜ nvm install lts
+➜ nvm use lts
+Installing on Linux or MacOS
+If you are using Linux or MacOS then you can install NVM with the following console commands.
+
+➜ curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
+
+➜ . ~/.nvm/nvm.sh
+In the console application install the long term support (LTS) version of Node.
+
+➜ nvm install --lts
+Checking that Node is installed
+The node.js console application is simply called node. You can verify that Node is working correctly by running node with the -v parameter. Note that your version might be different than what is shown here. As long as it is a LTS version you should be fine.
+
+➜ node -v
+v18.13.0
+Running programs
+You can execute a line of JavaScript with Node.js from your console with the -e parameter.
+
+➜  node -e "console.log(1+1)"
+2
+However, to do real work you need to execute an entire project composed of dozens or even hundreds of JavaScript files. You do this by creating a single starting JavaScript file, named something like main.js, that references the code found in the rest your project. You then execute your code by running node with main.js as a parameter. For example, with the following JavaScript saved to a file named main.js
+
+function countdown() {
+  let i = 0;
+  while (i++ < 5) {
+    console.log(`Counting ... ${i}`);
+  }
+}
+
+countdown();
+We can execute the JavaScript by passed the file to node, and receive the following result.
+
+➜  node main.js
+Counting ... 1
+Counting ... 2
+Counting ... 3
+Counting ... 4
+Counting ... 5
+You can also run node in interpretive mode by executing it without any parameters and then typing your JavaScript code directly into the interpreter.
+
+➜ node
+Welcome to Node.js v16.15.1.
+> 1+1
+2
+> console.log('hello')
+hello
+Node package manager
+While you could write all of the JavaScript for everything you need, it is always helpful to use preexisting packages of JavaScript for implementing common tasks. To load a package using Node.js you must take two steps. First install the package locally on your machine using the Node Package Manager (NPM), and then include a require statement in your code that references the package name. NPM is automatically installed when you installed Node.js.
+
+NPM knows how to access a massive repository of preexisting packages. You can search for packages on the NPM website. However, before you start using NPM to install packages you need to initialize you code to use NPM. This is done by creating a directory that will contain your JavaScript and then running npm init. NPM will step you through a series of questions about the project you are creating. You can press the return key for each of questions if you want to accept the defaults. If you are always going to accept all of the defaults you can use npm init -y and skip the Q&A.
+
+➜  mkdir npmtest
+➜  cd npmtest
+➜  npm init -y
+Package.json
+If you list the files in directory you will notice that it has created a file named package.json. This file contains three main things: 1) Metadata about your project such as its name and the default entry JavaScript file, 2) commands that you can execute to do things like run, test, or distribute your code, and 3) packages that this project depends upon. With NPM initialized to work with your project, you can now use it to install a node package. As a simple example, we will install a package that knows how to tell jokes. This package is called give-me-a-joke. You can search for it on the NPM website, see how often it is installed, examine the source code, and learn about who created it. You install the package using npm install followed by the name of the package.
+
+➜  npm install give-me-a-joke
+If you again examine the contents of the package.json file you will see a reference to the newly installed package dependency. If you decide you no longer want a package dependency you can always remove it with the npm uninstall <package name here> console command.
+
+⚠ Note that when you start installing package dependencies NPM will create an additional file named package-lock.json and a directory named node-modules in your project directory. The node-modules directory contains the actual JavaScript for the package and all of its dependent packages. As you install several packages this directory will start to get very large. You do not want to check this directory into your source control system since it is so large and can be rebuilt using the information contained in the package.json and package-lock.json files. So make sure you include node-modules in your .gitignore file.
+
+When you clone your source code from GitHub to a new location, just run npm install in the project directory. This will cause NPM to download all of the previously installed packages and recreate the node-modules directory. The package-lock.json file tracks the version of the package that you installed. That way if rebuild your node-modules directory you will have the version of the package you initially installed and not the latest available version, which might not be compatible with your code.
+
+With NPM and the joke package installed, you can now use the package in a JavaScript file by referencing the package name as a parameter to the require function. This is then followed by a call the joke object's getRandomDadJoke function to actually generate a joke.
+
+const giveMeAJoke = require('give-me-a-joke');
+giveMeAJoke.getRandomDadJoke((joke) => {
+  console.log(joke);
+});
+If we run this code using node we get the following result.
+
+➜  node main.js
+What do you call a fish with no eyes? A fsh.
+This may seem like a lot of work but after you do it a few times it will begin to feel natural. Just remember the main steps.
+
+Create your project directory
+Initialize it for use with NPM by running npm init -y
+Make sure .gitignore file contains node-modules
+Install any desired packages with npm install <package name here>
+Add require('<package name here>') to your JavaScript code
+Run your code with node main.js
+Creating a web service
+With JavaScript we can write code that listens on a server port (e.g. 8080), receives HTTP requests, processes them, and then responds. We can use this to create a simple web service that we then execute using Node.js.
+
+The following example first initializes the use of NPM and installs the package http. The http package contains the functionality for listening on server ports and manipulating HTTP requests.
+
+➜ mkdir webservicetest
+➜ cd webservicetest
+➜ npm init -y
+➜ npm install http
+Now we can create our HTTP server using the http.createServer function and provide it with a callback function that takes a request (req) and response (res) object. That function is called whenever the server receives an HTTP request. In our example, the callback always returns the same HTML snippet, with a status code of 200, and a Content-Type header, no matter what request is made. Basically this is just a simple dynamically generated HTML page. A real web service would examine the HTTP path and return meaningful content based upon the purpose of the endpoint.
+
+The server.listen call starts listening on port 8080 and blocks until the program is terminated.
+
+const http = require('http');
+const server = http.createServer(function (req, res) {
+  res.writeHead(200, { 'Content-Type': 'text/html' });
+  res.write('<h1>Hello Node.js!</h1>');
+  res.end();
+});
+
+server.listen(8080, () => {
+  console.log(`Web service listening on port 8080`);
+});
+We execute the program by passing our JavaScript to Node. If the service starts up correctly then it should look like the following.
+
+➜ node main.js
+Web service listening on port 8080
+You can now open you browser and point it to localhost:8080 and view the result. The interaction between the JavaScript, node, and the browser looks like this.
+
+Node HTTP
+
+You can kill the process by pressing CTRL-C in the console.
+
+Deno and Bun
+You should be aware that Ryan has created a successor to Node.js called Deno. This version is more compliant with advances in ECMAScript and has significant performance enhancements. There are also competitor server JavaScript applications. One of the more interesting rising stars is called Bun. If you have the time you should learn about them.
+       
+EXPRESS: In the previous instruction you saw how to use Node.js to create a simple web server. This works great for little projects where you are trying to quickly serve up some web content, but to build a production ready application you need a framework with a bit more functionality for easily implementing a full web service. This is where the Node package Express come in. Express provides support for:
+
+Routing requests for service endpoints
+Manipulating HTTP requests with JSON body content
+Generating HTTP responses
+Using middleware to add functionality
+Express was created by TJ Holowaychuk and is currently maintained by the Open.js Foundation.
+
+TJ Holowaychuk
+
+“People tell you to not reinvent things, but I think you should … it will teach you things”
+
+— TJ Holowaychuk
+
+Everything in Express revolves around creating and using HTTP routing and middleware functions. You create an Express application by using NPM to install the Express package and then calling the express constructor to create the express application and listen for HTTP requests on a desired port.
+
+➜ npm install express
+const express = require('express');
+const app = express();
+
+app.listen(8080);
+With the app object you can now add HTTP routing and middleware functions to the application.
+
+Defining routes
+HTTP endpoints are implemented in Express by defining routes that call a function based upon an HTTP path. The Express app object supports all of the HTTP verbs as functions on the object. For example, if you want to have a route function that handles an HTTP GET request for the URL path /store/provo you would call the get method on the app.
+
+app.get('/store/provo', (req, res, next) => {
+  res.send({ name: 'provo' });
+});
+The get function takes two parameters, a URL path matching pattern, and a callback function that is invoked when the pattern matches. The path matching parameter is used to match against the URL path of an incoming HTTP request.
+
+The callback function has three parameters that represent the HTTP request object (req), the HTTP response object (res), and the next routing function that Express expects to be called if this routing function wants another function to generate a response.
+
+The express app compares the routing function patterns in the order that they are added to the Express app object. So if you have two routing functions with patterns that both match, the first one that was added will be called and given the next matching function in the next parameter.
+
+In our example above we hard coded the store name to be provo. A real store endpoint would allow any store name to be provided as a parameter in the path. Express supports path parameters by prefixing the parameter name with a colon (:). Express creates a map of path parameters and populates it with the matching values found in the URL path. You then reference the parameters using the req.params object. Using this pattern you can rewrite our getStore endpoint as follows.
+
+app.get('/store/:storeName', (req, res, next) => {
+  res.send({ name: req.params.storeName });
+});
+If we run our JavaScript using node we can see the result when make an HTTP request using curl.
+
+➜ curl localhost:8080/store/orem
+{"name":"orem"}
+If you wanted an endpoint that used the POST or DELETE HTTP verb then you just use the post or delete function on the Express app object.
+
+The route path can also include a limited wildcard syntax or even full regular expressions in path pattern. Here are a couple route functions using different pattern syntax.
+
+// Wildcard - matches /store/x and /star/y
+app.put('/st*/:storeName', (req, res) => res.send({ update: req.params.storeName }));
+
+// Pure regular expression
+app.delete(/\/store\/(.+)/, (req, res) => res.send({ delete: req.params[0] }));
+Notice that in these examples the next parameter was omitted. Since we are not calling next we do not need to include it as a parameter. However, if you do not call next then no following middleware functions will be invoked for the request.
+
+Using middleware
+📖 Deeper dive reading: Express Middleware
+
+The standard Mediator/Middleware design pattern has two pieces: A mediator and middleware. Middleware represents componentized pieces of functionality. The mediator loads the middleware components and determines their order of execution. When a request comes to the mediator it then passes the request around to the middleware components. Following this pattern, Express is the mediator, and middleware functions are the middleware components.
+
+Express comes with a standard set of middleware functions. These provide functionality like routing, authentication, CORS, sessions, serving static web files, cookies, and logging. Some middleware functions are provided by default, and other ones must be installed using NPM before you can use it. You can also write your own middleware functions and use them with Express.
+
+A middleware function looks very similar to a routing function. That is because routing functions are also middleware functions. The only difference is that routing functions are only called if the associated pattern matches. Middleware functions are always called for every HTTP request unless a preceding middleware function does not call next. A middleware function has the following pattern:
+
+function middlewareName(req, res, next)
+The middleware function parameters represent the HTTP request object (req), the HTTP response object (res), and the next middleware function to pass processing to. You should usually call the next function after completing processing so that the next middleware function can execute.
+
+Middleware
+
+Creating your own middleware
+As an example of writing your own middleware, you can create a function that logs out the URL of the request and then passes on processing to the next middleware function.
+
+app.use((req, res, next) => {
+  console.log(req.originalUrl);
+  next();
+});
+Remember that the order that you add your middleware to the Express app object controls the order that the middleware functions are called. Any middleware that does not call the next function after doing its processing, stops the middleware chain from continuing.
+
+Builtin middleware
+In addition to creating your own middleware functions, you can use a built-in middleware function. Here is an example of using the static middleware function. This middleware responds with static files, found in a given directory, that match the request URL.
+
+app.use(express.static('public'));
+Now if you create a subdirectory in your project directory and name it public you can serve up any static content that you would like. For example, you could create an index.html file that is the default content for your web service. Then when you call your web service without any path the index.html file will be returned.
+
+Third party middleware
+You can also use third party middleware functions by using NPM to install the package and including the package in your JavaScript with the require function. The following uses the cookie-parser package to simplify the generation and access of cookies.
+
+➜ npm install cookie-parser
+const cookieParser = require('cookie-parser');
+
+app.use(cookieParser());
+
+app.post('/cookie/:name/:value', (req, res, next) => {
+  res.cookie(req.params.name, req.params.value);
+  res.send({ cookie: `${req.params.name}:${req.params.value}` });
+});
+
+app.get('/cookie', (req, res, next) => {
+  res.send({ cookie: req.cookies });
+});
+It is common for middleware functions to add fields and functions to the req and res object so that other middleware can access the functionality they provide. You see this happening when the cookie-parser middleware adds the req.cookies object for reading cookies, and also adds the res.cookie function in order to make it easy to add a cookie to a response.
+
+Error handling middleware
+You can also add middleware for handling errors that occur. Error middleware looks similar to other middleware functions, but it takes an additional err parameter that contains the error.
+
+function errorMiddlewareName(err, req, res, next)
+If you wanted to add a simple error handler for anything that might go wrong while process HTTP requests you could add the following.
+
+app.use(function (err, req, res, next) {
+  res.status(500).send({ type: err.name, message: err.message });
+});
+We can test that our error middleware is getting used by adding a new endpoint that generates an error.
+
+app.get('/error', (req, res, next) => {
+  throw new Error('Trouble in river city');
+});
+Now if we use curl to call our error endpoint we can see that the response comes from the error middleware.
+
+➜ curl localhost:8080/error
+{"type":"Error","message":"Trouble in river city"}
+Putting it all together
+Here is a full example of our web service built using Express.
+
+const express = require('express');
+const cookieParser = require('cookie-parser');
+const app = express();
+
+// Third party middleware - Cookies
+app.use(cookieParser());
+
+app.post('/cookie/:name/:value', (req, res, next) => {
+  res.cookie(req.params.name, req.params.value);
+  res.send({ cookie: `${req.params.name}:${req.params.value}` });
+});
+
+app.get('/cookie', (req, res, next) => {
+  res.send({ cookie: req.cookies });
+});
+
+// Creating your own middleware - logging
+app.use((req, res, next) => {
+  console.log(req.originalUrl);
+  next();
+});
+
+// Built in middleware - Static file hosting
+app.use(express.static('public'));
+
+// Routing middleware
+app.get('/store/:storeName', (req, res) => {
+  res.send({ name: req.params.storeName });
+});
+
+app.put('/st*/:storeName', (req, res) => res.send({ update: req.params.storeName }));
+
+app.delete(/\/store\/(.+)/, (req, res) => res.send({ delete: req.params[0] }));
+
+// Error middleware
+app.get('/error', (req, res, next) => {
+  throw new Error('Trouble in river city');
+});
+
+app.use(function (err, req, res, next) {
+  res.status(500).send({ type: err.name, message: err.message });
+});
+
+// Listening to a network port
+const port = 8080;
+app.listen(port, function () {
+  console.log(`Listening on port ${port}`);
+});
+       
+DEBUGGIN NODE.JS: Previously your JavaScript debugging was done using the browser's debugging tools as it executed in the browser. Now that you are writing JavaScript that runs using Node.js you need a way to debug your code without the help of browser. One great way to do that is to use the debugging tools built into VS Code. To debug JavaScript in VS Code you first need some JavaScript to debug. Open up VS Code and create a new file named main.js and paste the following code into the file.
+
+let x = 1 + 1;
+
+console.log(x);
+
+function double(x) {
+  return x * 2;
+}
+
+x = double(x);
+
+console.log(x);
+You can now debug main.js in VS Code by executing the Start Debugging command by pressing F5. The first time you run this, VS Code will ask you what debugger you want to use. Select node.js.
+
+Debug start
+
+The code will execute and the debug console window will automatically open to show you the debugger output where you can see the results of the two console.log statements found in the code.
+
+Debug output
+
+You can pause execution of the code by setting a breakpoint. Move your cursor over to the far left side of the editor window. As you hover on the left side of the line numbers you will see a red dot appear. Click on the dot to set the breakpoint.
+
+Debug output
+
+Now start the debugger again by pressing F5. The code will start running, but pause on the line with the breakpoint. You can then see the values of variables by looking at the variable window on the left, or by hovering your mouse over the variable you would like to inspect.
+
+Debug pause
+
+You can continue execution of the code by pressing F10 to step to the next line, F11 to step into a function call, or F5 to continue running from the current line. When the last line of code executes the debugger will automatically exit and you will need to press F5 to start it running again. You can stop debugging at any time by pressing SHIFT-F5.
+
+Experiment with this simple file until you are comfortable running the debugger, setting breakpoints, and inspecting variables.
+
+Debugging a Node.js web service
+In order to debug a web service running under Node.js we first need to write our code. Replace the code in your main.js file with the following.
+
+const express = require('express');
+const app = express();
+
+app.get('/*', (req, res) => {
+  res.send({ url: req.originalUrl });
+});
+
+const port = 8080;
+app.listen(port, function () {
+  console.log(`Listening on port ${port}`);
+});
+Switch to your console application and run npm init -y and npm install express from your code directory so that we can use the Express package to write a simple web service.
+
+Now we are ready to debug again. Set a breakpoint on the getStore endpoint callback (line 5) and the app.listen call (line 9). Start debugging by pressing F5. The debugger should stop on the listen call where you can inspect the app variable. Press F5 again to continue running. Now open up your browser and set the location to localhost:8080. This should hit the breakpoint on the endpoint. Take some time to inspect the req object. You should be able to see what the HTTP method is, what parameters are provided, and what the path currently is. Press F5 to continue.
+
+Your browser should display the JSON object, containing the URL, that you returned from your endpoint. Now change the URL in the browser to include a path and some query parameters. Something like http://localhost:8080/fish/taco?order=2. Requesting that URL should cause your breakpoint to hit again where you can see the URL changes reflected in the req object.
+
+Now, instead of pressing F5 to continue, press F11 to step into the res.send function. This will take you out of your code and into the express code that handles sending a response. Because you installed the Express package using NPM, all of Express' source code is sitting in the node_modules directory. You can also set breakpoints there, examine variables, and step into functions. Debugging into popular packages is a great way to learn how to code by seeing how really good programmers do things. Take some time to walk around Holowaychuk's code and see if you can understand what it is doing.
+
+Debug step in
+
+Nodemon
+Once you start writing complex web applications you will find yourself making changes in the middle of debugging sessions and you would like have node restart automatically and update the browser as the changes are saved. This seems like a simple thing, but over the course of hundreds of changes, every second you can save really starts to add up.
+
+The Nodemon package is basically a wrapper around node that watches for files in the project directory to change. When it detects that you saved something it will automatically restart node.
+
+If you would like to experiment with this then take the following steps. First install Nodemon globally so that you can use it to debug all of your projects.
+
+npm install -g nodemon
+Then, because VS Code does not know how to launch nodemon automatically, you need create a VS Code launch configuration. In VS Code press CTRL-SHIFT-P (on Windows) or ⌘-⇧-P (on Mac) and type the command Debug: Add configuration. This will then ask you what type of configuration you would like to create. Type Node.js and select the Node.js: Nodemon setup option. in the launch configuration file at it creates, change the program from app.js to main.js (or whatever the main JavaScript file is for your application) and save the configuration file.
+
+Now when you press F5 to start debugging it will run Nodemon instead of Node.js and your changes will automatically update your application when you save.
+      
+SERVICE DAEMONS: PM2
+When you run a program from the console the program will automatically terminate when you close the console or if the computer restarts. In order to keep programs running after a shutdown you need to register it as a daemon. The term daemon comes from the idea of something that is always there working in the background. Hopefully you only have good daemons running in your background.
+
+We want our web services to continue running as a daemon. We would also like a easy way to start and stop our services. That is what Process Manager 2 (PM2) does.
+
+PM2 is already installed on your production server as part of the AWS AMI that you selected when you launched your server. Additionally, the deployment scripts found with the Simon projects automatically modify PM2 to register and restart your web services. That means you should not need to do anything with PM2. However, if you run into problems such as your services are not running, then here are some commands that you might find useful.
+
+You can SSH into your server and see PM2 in action by running the following command.
+
+pm2 ls
+This should print out the two services, simon and startup, that are configured to run on your web server.
+
+You can try some of the other commands, but only if you understand what they are doing. Using them incorrectly could cause your web services to stop working.
+
+Command	Purpose
+pm2 ls	List all of the hosted node processes
+pm2 monit	Visual monitor
+pm2 start index.js -n simon	Add a new process with an explicit name
+pm2 start index.js -n startup -- 4000	Add a new process with an explicit name and port parameter
+pm2 stop simon	Stop a process
+pm2 restart simon	Restart a process
+pm2 delete simon	Delete a process from being hosted
+pm2 delete all	Delete all processes
+pm2 save	Save the current processes across reboot
+pm2 restart all	Reload all of the processes
+pm2 restart simon-react --update-env	Reload process and update the node version to the current environment definition
+pm2 update	Reload pm2
+pm2 start env.js --watch --ignore-watch="node_modules"	Automatically reload service when index.js changes
+pm2 describe simon	Describe detailed process information
+pm2 startup	Displays the command to run to keep PM2 running after a reboot.
+pm2 logs simon	Display process logs
+pm2 env 0	Display environment variables for process. Use ls to get the process ID
+Registering a new web service
+If you want to setup another subdomain that accesses a different web service on your web server, you need to follow these steps.
+
+Add the rule to the Caddyfile to tell it how to direct requests for the domain.
+Create a directory and add the files for the web service.
+Configure PM2 to host the web service.
+Modify Caddyfile
+SSH into your server.
+
+Copy the section for the start up subdomain and alter it so that it represents the desired subdomain and give it a different port number that is not currently used on your server. For example:
+
+tacos.cs260.click {
+  reverse_proxy _ localhost:5000
+  header Cache-Control none
+  header -server
+  header Access-Control-Allow-Origin *
+}
+This tells Caddy that when it gets a request for tacos.cs260.click it will act as a proxy for those requests and pass them on to the web service that is listening on the same machine (localhost), on port 5000. The other settings tell Caddy to return headers that disable caching, hide the fact that Caddy is the server (no reason to tell hackers anything about your server), and to allow any other origin server to make endpoint requests to this subdomain (basically disabling CORS). Depending on what your web service does you may want different settings.
+
+Restart Caddy to cause it to load the new settings.
+
+sudo service caddy restart
+Now Caddy will attempt to proxy the requests, but there is no web service listening on port 5000 and so you will get an error from Caddy if you make a request to tacos.cs260.click.
+
+Create the web service
+Copy the ~/services/startup directory to a directory that represents the purpose of your service. For example:
+
+cp -r ~/services/startup ~/services/tacos
+
+If you list the directory you should see an index.js file that is the main JavaScript file for your web service. It has the code to listen on the designated network port and respond to requests. The following is the JavaScript that causes the web service to listen on a port that is provided as an argument to the command line.
+
+const port = process.argv.length > 2 ? process.argv[2] : 3000;
+app.listen(port, () => {
+  console.log(`Listening on port ${port}`);
+});
+There is also a directory named public that has static HTML/CSS/JavaScript files that your web service will respond with when requested. The index.js file enables this with the following code:
+
+app.use(express.static('public'));
+You can start up the web service, listening on port 5000, using Node as follows.
+
+node index.js 5000
+You can now access your web service through the browser, or curl.
+
+curl https://tacos.cs260.click
+Caddy will receive the request and map the subdomain name, tacos.cs260.click, to a request for https://localhost:5000. Your web service is listening on port 5000 and so it receives the request and responds.
+
+Stop your web service by pressing CTRL-C in the SSH console that you used to start the service. Now your browser request for your subdomain should return an error again.
+
+Configure PM2 to host the web service
+The problem with running your web service from the console with node index.js 5000, is that as soon as you close your SSH session it will terminate all processes you started in that session, including your web service. Instead you need something that is always running in the background to run your web service. This is where daemons come into play. The daemon we use to do this is called PM2.
+
+From your SSH console session run:
+
+pm2 ls
+This will list the web services that you already have registered with PM2. To run your newly created web service under PM2, make sure you are in your service directory, and run the command similar to the following, with the service name and port substituted to your desired values:
+
+cd ~/services/tacos
+pm2 start index.js -n tacos -- 5000
+pm2 save
+If you run pm2 ls again you should see your web service listed. You can now access your subdomain in the browser and see the proper response. PM2 will keep running your service even after you exit your SSH session.
+       
+UI TESTING: Test driven development (TDD) is a proven methodology for accelerating application creation, protecting against regression bugs, and demonstrating correctness. TDD for console based applications and server based code is fairly straight forward. Web application UI code is significantly more complex to test, and using automated tests to drive your UI development is even more difficult.
+
+The problem is that a browser is required to execute UI code. That means you have to actually test the application in the browser. Additionally, every one of the major browsers behaves slightly differently, viewport size makes a big difference, all the code executes asynchronously, network disruptions are common, and then there is the human factor. A human will interact with the browser in very unexpected ways. Clicking where they shouldn't, clicking rapidly, randomly refreshing the browser, flushing cache, not flushing cache, leaving the application up for days on end, switching between tabs, opening the application multiple times, logging in on different tabs, logging out of one tab while still using the application on another tab, or ... on and on. And we haven't even talked about running all the different browsers on all of the possible devices.
+
+Of course the alternative to not test your code doesn't work either. That only means that you have to manually test everything every time you make any change, or you let your users test everything. That is not a good recipe for long term success.
+
+Fortunately this is a problem that many strong players have been working on for decades now, and the solutions, while not perfect, are getting better and better. We will look at two of these solutions. One is for executing automated tests in the browser, and the other is for testing on different browsers and devices.
+
+Automating the browser - Playwright
+📖 Deeper dive reading: Playwright and VS Code
+
+No one understands the difficulty of testing applications in a browser better than the companies that build web browsers. They have to test every possible use of HTML, CSS, and JavaScript that a user could think of. There is no way that manual testing is going to work and so early on they started putting hooks into their browsers that allowed them to be driven from automated external processes. Selenium was introduced in 2004 as the first popular tool to automate the browser. However, Selenium is generally considered to be flaky and slow. Flakiness means that a test fails in unpredictably, unreproducible, ways. When you need thousands of tests to pass before you can deploy a new feature, even a little flakiness becomes a big problem. If those tests take hours to run then you have an even bigger problem.
+
+The market now has lots of alternatives when considering which automated browser framework to use. State of JS includes statistics on how popular these frameworks are. With frameworks coming and going all of the time, one telling statistic is the frameworks ability to retain users.
+
+State of JS testing
+
+— Retention of browser based testing frameworks (Source: 2021.stateofjs.com)
+
+For the purposes of this instruction, we could pick any of the top contenders. However, we are going to pick a newcomer, Playwright. Playwright has some major advantages. It is backed by Microsoft, it integrates really well with VS Code, and it runs as a Node.js process. It is also considered one of the least flaky of the testing frameworks.
+
+As a demonstration of using Playwright, consider the following simplified HTML file containing a button that changes the paragraph text. The button calls a JavaScript function defined in a script element located in the HTML file.
+
+<body>
+  <p id="welcome" data-testid="msg">Hello world</p>
+  <button onclick="changeWelcome()">change welcome</button>
+  <script>
+    function changeWelcome() {
+      const welcomeEl = document.querySelector('#welcome');
+      welcomeEl.textContent = 'I feel welcomed';
+    }
+  </script>
+</body>
+First, you need to install Playwright. In your project directory, use NPM to download the playwright packages, install the browser drivers, configure your project, and create a couple example test files.
+
+npm init playwright@latest
+Next, you want to install the Playwright extension for VS Code. Go to the extensions tab in VS Code and search for, and install, Playwright Test for VSCode.
+
+You can now write your first Playwright test. Take the following and paste it over the tests/example.spec.js file that the Playwright install created.
+
+import { test, expect } from '@playwright/test';
+
+test('testWelcomeButton', async ({ page }) => {
+  // Navigate to the welcome page
+  await page.goto('http://localhost:5500/');
+
+  // Get the target element and make sure it is in the correct starting state
+  const hello = page.getByTestId('msg');
+  await expect(hello).toHaveText('Hello world');
+
+  // Press the button
+  const changeBtn = page.getByRole('button', { name: 'change welcome' });
+  await changeBtn.click();
+
+  // Expect that the change happened correctly
+  await expect(hello).toHaveText('I feel not welcomed');
+});
+This test makes sure you can successfully navigate to the desired page, that the page contains the desired elements, that you can press the button and the text changes as expected.
+
+Before you run the test, you actually need your application running for the test to execute against. You can do this by using the VS Code Live Server extension, or if you are testing a Node.js based service then run npm run start. You can actually add configuration to your tests so that your application is started when your tests run, but for now, just start up your application before you run the test.
+
+To run the test in VS Code, select the Test Explorer tab. You should see your test listed in the explorer. Select the example.spec.ts test and press the play button. This will start the test, launch a browser, run the test code to interact with the browser, and display the result. In this case our test fails because it is expecting the resulting test to be I feel not welcomed when it actually displays I feel welcomed.
+
+The following image should be similar to what you see. You can see the listing of tests on the left and the JavaScript based test in the editor window on the right. When a test fails the editor window displays a clear description of what went wrong. You can even debug the tests as they execute just like you would any other Node.js based JavaScript execution.
+
+Playwright
+
+You can fix the test by either changing index.html or test/example.spec.js so that the text matches. Once you have done that you can run the test again and the test explorer should display a green check box.
+
+This is just a simple example of the powerful functionality of Playwright. You are encouraged to explore its functionality and even add some tests to your projects. Once you have gained some competency with Playwright you will find that you can write your code faster and feel more confident when changing things around.
+
+Testing various devices - Browser Stack
+With the ability to run automated UI tests, we now turn our attention to testing on the multitude of various devices. There are several services out there that help with this. One of these is BrowserStack. BrowserStack lets you pick from a long list of physical devices that you can run interactively, or use when driving automated tests with Selenium. The image below only shows a partial list of iPhone devices. BrowserStack also has devices for Android, Mac, and Windows.
+
+BrowserStack devices
+
+When you launch a device it connects the browser interface to a physical device hosted in a data center. You can then use the device to reproduce user reported problems, or validate that your implementation works on that specific device. The following image shows the use of BrowserStack to experiment with an iPhone 14 running iOS 16.
+
+BrowserStack iPhone
+
+BrowserStack offers free trials if you would like to see how your start up application works on a specific device.
+       
+ENDPOINT TESTING: Using test driven development (TDD) for testing service endpoints is a common industry practice. Testing services is usually easier than writing UI tests because it does not require a browser. However, it does still take effort to learn how to write tests that are effective and efficient. Making this a standard part of your development process will give you a significant advantage as you progress in your professional career.
+
+As demonstrated by the following State of JS survey, there are lots of good testing packages that work well with Express driven services. We are going to look at the current champion Jest.
+
+State of JS Testing
+
+To get started with Jest we need a simple web service. In a console window, create a test directory, install Express, and open up VS Code.
+
+mkdir testJest
+cd testJest
+npm init -y
+npm install express
+code .
+Now create a file named server.js and use Express to create an application with two endpoints. One to get a store (getStore), and another to update a store.
+
+server.js
+
+const express = require('express');
+const app = express();
+
+app.use(express.json());
+
+// Endpoints
+app.get('/store/:storeName', (req, res) => {
+  res.send({ name: req.params.storeName });
+});
+
+app.put('/store/:storeName', (req, res) => {
+  req.body.updated = true;
+  res.send(req.body);
+});
+
+module.exports = app;
+In order to allow Jest to start up the HTTP server when running tests, we initialize the application a little bit differently than we have in the past. Normally, we would have just started listening on the Express app object after we defined our endpoints. Instead we export the Express app object from our server.js file and then import the app object in the index.js file that is used to run our service.
+
+index.js
+
+const app = require('./server');
+
+const port = 8080;
+app.listen(port, function () {
+  console.log(`Listening on port ${port}`);
+});
+Breaking apart the definition of the service from the starting of the service allows us to start the service both when we run normally and also when using our testing framework.
+
+Jest endpoint requests
+
+You can test that the service is working properly by running the service in the VS Code debugger and pressing F5 while viewing the index.js file. Then open a browser and navigate to http://localhost:8080/store/provo. Stop the debugging session once you have demonstrated that the service is working correctly.
+
+To launch the service using Jest we create another file that has a suffix of .test.js. Any file with that suffix is considered a testing file and will automatically be discovered by Jest and examined for tests to run.
+
+A simple test
+Before we write tests for our endpoints we will write a simple test that demonstrates how Jest works. A test is created by calling the Jest test function. Note that you don't need to include a require statement to import Jest functions into your code. Jest will automatically import itself when it discovers a test file.
+
+Let's make our first test by creating a file named store.test.js and pasting in the following code.
+
+store.test.js
+
+test('that equal values are equal', () => {
+  expect(false).toBe(true);
+});
+The test function takes a description as the first parameter. The description is meant to be human readable. In this case it reads: "test that equal values are equal". The second parameter is the function to call. Our function just calls the Jest expect function and chains it to the toBe function. You can read this as "expect false to be true", which is of course is not true, but we want to see our test fail the first time we run it. We will fix this later so that we can show what happens when a test succeeds.
+
+In order to run the test we need to install the Jest package using NPM. From the console install the package. The -D parameter tells NPM to install Jest as a development package. That keeps it from being included when we do production release builds.
+
+npm install jest -D
+Now, replace the scripts section of the package.json file with a new command that will run our tests with Jest.
+
+"scripts": {
+  "test": "jest"
+},
+With that in place we can run the test command and our test will execute. Notice that Jest shows exactly where the test failed and what expected values were not received.
+
+➜ npm run test
+
+ FAIL  ./store.test.js
+  ✕ that unequal values are not equal (1 ms)
+
+  ● that unequal values are not equal
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      3 |
+      4 | test('that unequal values are not equal', () => {
+    > 5 |   expect(false).toBe(true);
+        |                 ^
+      6 | });
+      7 |
+      8 | // describe('endpoints', () => {
+
+      at Object.toBe (store.test.js:5:17)
+
+Tests:       1 failed, 1 total
+We can then fix our test by rewriting it so that the expected value matches the provided value.
+
+store.test.js
+
+test('that equal values are equal', () => {
+  expect(true).toBe(true);
+});
+This time when we run the test it passes.
+
+➜  npm run test
+
+ PASS  ./store.test.js
+  ✓ that equal values are equal (1 ms)
+
+Tests:       1 passed, 1 total
+Note that this example didn't actually test any of our code, but it does demonstrate how easy it is to write tests. A real test function would call code in your program. Let's do this by actually making calls to our endpoints.
+
+Testing endpoints
+To test our endpoints we need another package so that we can make HTTP requests without having to actually send them over the network. This is done with the NPM package called supertest. Go ahead and install this now.
+
+npm install supertest -D
+We can then alter store.test.js to import our Express service and also the request function from supertest that we will use to make HTTP requests.
+
+To make an HTTP request you pass the Express app to the supertest request function and then chain on the HTTP verb function that you want to call, along with the endpoint path. You can then chain on as many expect functions as you would like. In the following example we will expect an HTTP status code of 200 (OK), and that the body of the response contains the object that we expect the endpoint to return.
+
+If something goes wrong, the end function will contain an error and we pass the error along to the done function. Otherwise we just call done without the error.
+
+store.test.js
+
+const request = require('supertest');
+const app = require('./server');
+
+test('getStore returns the desired store', (done) => {
+  request(app)
+    .get('/store/provo')
+    .expect(200)
+    .expect({ name: 'provo' })
+    .end((err) => (err ? done(err) : done()));
+});
+When we run this test we see that it passes without error.
+
+➜  npm run test
+
+ PASS  ./store.test.js
+  ✓ getStore returns the desired store (16 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       1 passed, 1 total
+Snapshots:   0 total
+Time:        0.237 s, estimated 1 s
+You can change the test to expect a status code of 500 (Server Error) if you want to see the test fail. You can also change the endpoint code to return a 201 status code (Created) and also see the test fail.
+
+Now We can add a test for the updateStore endpoint. To do this we can copy the getStore endpoint, change the description, change the HTTP function verb to put, and send the body of the put request using the chained send function.
+
+const request = require('supertest');
+const app = require('./server');
+
+test('updateStore saves the correct values', (done) => {
+  request(app)
+    .put('/store/provo')
+    .send({ items: ['fish', 'milk'] })
+    .expect(200)
+    .expect({ items: ['fish', 'milk'], updated: true })
+    .end((err) => (err ? done(err) : done()));
+});
+
+test('getStore returns the desired store', (done) => {
+  request(app)
+    .get('/store/provo')
+    .expect(200)
+    .expect({ name: 'provo' })
+    .end((err) => (err ? done(err) : done()));
+});
+The great thing about test driven development (TDD) is that you can actually write your tests first and then write your code based upon the design represented by the tests. When your tests pass you know your code is complete. Additionally, when you make later modifications to your code you can simply run your tests again. If they pass then you can be confident that your code is still working without having to manually test everything yourself. With systems that have hundreds of endpoints and hundreds of thousands of lines of code, TDD becomes an indispensible part of the development process.
+       
+SIMON SERVICE: This deliverable demonstrates converting the JavaScript application into a web application by implementing a web service that listens on a network port for HTTP requests. The web service provide endpoints for getting and updating the scores. The application also uses a couple third party endpoints to display inspirational quotes on the about page and show a random header image.
+
+We will use Node.js and Express to create our HTTP service.
+
+You can view this application running here: Example Simon Service
+
+Simon Service
+
+Service endpoint definitions
+Here is our design, documented using curl commands, for the two endpoints that the Simon web service provides.
+
+GetScores - Get the latest high scores.
+
+curl -X GET /api/scores
+
+#Response
+{ "scores":[
+  {"name":"Harvey", "score":"337", "date":"2022/11/20"},
+  {"name":"도윤 이", "score":"95", "date":"2019/05/20"}
+]}
+SubmitScore - Submit a score for consideration in the list of high scores.
+
+curl -X POST /api/score -d '{"name":"Harvey", "score":"337", "date":"2022/11/20"}'
+
+#Response
+{ "scores":[
+  {"name":"Harvey", "score":"337", "date":"2022/11/20"},
+  {"name":"도윤 이", "score":"95", "date":"2019/05/20"}
+]}
+Third party endpoints
+The about.js file contains code for making calls to third party endpoints using fetch. We make one call to picsum.photos to get a random picture and another to quotable.io to get a random quote. Once the endpoint asynchronously returns, the DOM is updated with the requested data. Here is an example of the quote endpoint call.
+
+function displayQuote(data) {
+  fetch('https://api.quotable.io/random')
+    .then((response) => response.json())
+    .then((data) => {
+      const containerEl = document.querySelector('#quote');
+
+      const quoteEl = document.createElement('p');
+      quoteEl.classList.add('quote');
+      const authorEl = document.createElement('p');
+      authorEl.classList.add('author');
+
+      quoteEl.textContent = data.content;
+      authorEl.textContent = data.author;
+
+      containerEl.appendChild(quoteEl);
+      containerEl.appendChild(authorEl);
+    });
+}
+Steps to convert Simon to a service
+Converting Simon to a service involved the following steps.
+
+Move all the previous deliverable code files (_.html, _.js, *.css, favicon.ico, and assets) into a sub-directory named public. We will use the HTTP Node.js based service to host the front-end application files. This is done with the static file middleware that we will add our service index.js.
+
+app.use(express.static('public'));
+When running our service the static file middleware takes care of reading the front-end code from the public directory and returning it to the browser. The service only directly handles the endpoint requests.
+
+Simon service
+
+Within the project directory run npm init -y. This configures the directory to work with node.js.
+
+Modify or create .gitignore to ignore node_modules.
+
+Install the Express package by running npm install express. This will write the Express package dependency in the package.json file and install all the Express code to the node_modules directory.
+
+Create a file named index.js in the root of the project. This is the entry point that node.js will call when you run your web service.
+
+Add the basic Express JavaScript code needed to host the application static content and the desired endpoints.
+
+const express = require('express');
+const app = express();
+
+// The service port. In production the front-end code is statically hosted by the service on the same port.
+const port = process.argv.length > 2 ? process.argv[2] : 3000;
+
+// JSON body parsing using built-in middleware
+app.use(express.json());
+
+// Serve up the front-end static content hosting
+app.use(express.static('public'));
+
+// Router for service endpoints
+const apiRouter = express.Router();
+app.use(`/api`, apiRouter);
+
+// GetScores
+apiRouter.get('/scores', (_req, res) => {
+  res.send(scores);
+});
+
+// SubmitScore
+apiRouter.post('/score', (req, res) => {
+  scores = updateScores(req.body, scores);
+  res.send(scores);
+});
+
+// Return the application's default page if the path is unknown
+app.use((_req, res) => {
+  res.sendFile('index.html', { root: 'public' });
+});
+
+app.listen(port, () => {
+  console.log(`Listening on port ${port}`);
+});
+Modify the Simon application code to make service endpoint requests to our newly created HTTP service code.
+
+async function loadScores() {
+  const response = await fetch("/api/scores")
+  const scores = await response.json()
+
+  // Modify the DOM to display the scores
+       
+STORAGE SERVICES: Web applications commonly need to store files associated with the application or the users of the application. This includes files such as images, user uploads, documents, and movies. Files usually have an ID, some metadata, and the bytes representing the file itself. These can be stored using a database service, but usually that is overkill and a simpler solution will be cheaper.
+
+It might be tempting to store files directly on your server. This is usually a bad idea for several reasons.
+
+Your server has limited drive space. If you server runs out of drive space your entire application will fail.
+You should consider your server as being ephemeral, or temporary. It can be thrown away and replaced by a copy at any time. If you start storing files on the server, then your server has state that cannot be easily replaced.
+You need backup copies of your application and user files. If you only have one copy of your files on your server, then they will disappears when your server disappears, and you must always assume that your server will disappear.
+Instead you want to use a storage service that is specifically designed to support production storage and delivery of files.
+
+AWS S3
+There are many such solutions out there, but one of the most popular ones is AWS S3. S3 provides the following advantages:
+
+It has unlimited capacity
+You only pay for the storage that you use
+It is optimized for global access
+It keeps multiple redundant copies of every file
+You can version the files
+It is performant
+It supports metadata tags
+You can make your files publicly available directly from S3
+You can keep your files private and only accessible to your application
+In this course we will not be using an storage services for the Simon project. If however, you want to use S3 as the storage service for your Start Up application then you need to learn how to use the AWS SDK. You can find detailed information about using AWS S3 with Node.js on the AWS website. Generally, the steps you need to take include:
+
+Creating a S3 bucket to store your data in.
+Getting credentials so that your application can access the bucket.
+Using the credentials in your application.
+Using the SDK to write, list, read, and delete files from the bucket.
+⚠ Make sure that you do not include your credentials in your code. If you check your credentials into your GitHub repository they will immediately be stolen and used by hackers to take over your AWS account. This may result in significant monetary damage to you.
+       
+DATA SERVICES: Web applications commonly need to store application and user data persistently. The data can be many things, but it is usually a representation of complex interrelated objects. This includes this like a user profile, organizational structure, game play information, usage history, billing information, peer relationship, library catalog, and so forth.
+
+Data service
+
+Historically SQL databases have served as the general purpose data service solution, but starting around 2010 specialty data services that better support document, graph, JSON, time, sequence, and key-value pair data began to take significant roles in applications from major companies. These data services are often called NoSQL solutions because they do not use the general purpose relational database paradigms popularized by SQL databases. However, they all have very different underlying data structures, strengths, and weaknesses. That means that you should not simply split all of the possible data services into two narrowly defined boxes, SQL and NoSQL, when you are considering the right data service for your application.
+
+Here is a list of some of the popular data services that are available.
+
+Service	Specialty
+MySQL	Relational queries
+Redis	Memory cached objects
+ElasticSearch	Ranked free text
+MongoDB	JSON objects
+DynamoDB	Key value pairs
+Neo4J	Graph based data
+InfluxDB	Time series data
+MongoDB
+MongoDB logo
+
+For the projects in this course that require data services, we will use MongoDB. Mongo increases developer productivity by using JSON objects as its core data model. This makes it easy to have an application that uses JSON from the top to the bottom of the technology stack. A mongo database is made up of one or more collections that each contain JSON documents. You can think of a collection as a large array of JavaScript objects, each with a unique ID. The following is a sample of a collection of houses that are for rent.
+
+[
+  {
+    _id: '62300f5316f7f58839c811de',
+    name: 'Lovely Loft',
+    summary: 'A charming loft in Paris',
+    beds: 1,
+    last_review: {
+      $date: '2022-03-15T04:06:17.766Z',
+    },
+    price: 3000,
+  },
+  {
+    _id: '623010b97f1fed0a2df311f8',
+    name: 'Infinite Views',
+    summary: 'Modern home with infinite views from the infinity pool',
+    property_type: 'House',
+    beds: 5,
+    price: 250,
+  },
+];
+Unlike relational databases that require a rigid table definition where each column must be strictly typed and defined beforehand, Mongo has no strict schema requirements. Each document in the collection usually follows a similar schema, but each document may have specialized fields that are present, and common fields that are missing. This allows the schema of a collection to morph organically as the data model of the application evolves. To add a new field to a Mongo collection you just start insert the field into the documents as desired. If the field is not present, or has a different type in some documents, then the document simply doesn't match the query criteria when the field is referenced.
+
+The query syntax for Mongo also follow a JavaScript inspired flavor. Consider the following queries on the houses for rent collection that was shown above.
+
+// find all houses
+db.house.find();
+
+// find houses with two or more bedrooms
+db.house.find({ beds: { $gte: 2 } });
+
+// find houses that are available with less than three beds
+db.house.find({ status: 'available', beds: { $lt: 3 } });
+
+// find houses with either less than three beds or less than $1000 a night
+db.house.find({ $or: [(beds: { $lt: 3 }), (price: { $lt: 1000 })] });
+
+// find houses with the text 'modern' or 'beach' in the summary
+db.house.find({ summary: /(modern|beach)/i });
+Using MongoDB in your application
+📖 Deeper dive reading: MongoDB tutorial
+
+The first step to using Mongo in your application is to install the mongodb package using NPM.
+
+➜ npm install mongodb
+With that done you then use the MongoClient object to make a client connection to the database server. This requires a username, password, and the hostname of the database server.
+
+const { MongoClient } = require('mongodb');
+
+const userName = 'holowaychuk';
+const password = 'express';
+const hostname = 'mongodb.com';
+
+const uri = `mongodb+srv://${userName}:${password}@${hostname}`;
+
+const client = new MongoClient(uri);
+With the client connection you can then get a database object and from that a collection object. The collection object allows you to insert, and query for, documents. You do not have to do anything special to insert a JavaScript object as a Mongo document. You just call the insertOne function on the collection object and pass it the JavaScript object. When you insert a document, if the database or collection does not exists, Mongo will automatically create them for you. When the document is inserted into the collection it will automatically be assigned a unique ID.
+
+const collection = client.db('rental').collection('house');
+
+const house = {
+  name: 'Beachfront views',
+  summary: 'From your bedroom to the beach, no shoes required',
+  property_type: 'Condo',
+  beds: 1,
+};
+await collection.insertOne(house);
+To query for documents you use the find function on the collection object. Note that the find function is asynchronous and so we use the await keyword to wait for the promise to resolve before we write them out to the console.
+
+const cursor = collection.find();
+const rentals = await cursor.toArray();
+rentals.forEach((i) => console.log(i));
+If you do not supply any parameters to the find function then it will return all documents in the collection. In this case we only get back the single document that we previously inserted. Notice that the automatically generated ID is returned with the document.
+
+Output
+
+[
+  {
+    _id: new ObjectId('639a96398f8de594e198fc13'),
+    name: 'Beachfront views',
+    summary: 'From your bedroom to the beach, no shoes required',
+    property_type: 'Condo',
+    beds: 1,
+  },
+];
+You can provide a query and options to the find function. In the example below we query for a property_type of Condo that has less than two bedrooms. We also specify the options to sort by descending price, and limit our results to the first 10 documents.
+
+const query = { property_type: 'Condo', beds: { $lt: 2 } };
+
+const options = {
+  sort: { price: -1 },
+  limit: 10,
+};
+
+const cursor = collection.find(query, options);
+const rentals = await cursor.toArray();
+rentals.forEach((i) => console.log(i));
+The query matches the document that we previously inserted and so we get the same result as before.
+
+There is a lot more functionality that MongoDB provides, but this is enough to get you started. If you are interested you can explore the tutorials on their website.
+
+Managed services
+Historically each application development team would have developers that managed the data service. Those developers would acquisition hardware, install the database software, monitor the memory, cpu, and disk space, control the data schema, and handle migrations and upgrades. Much of this work has now moved to services that are hosted and managed by a 3rd party. This relieves the development team from much of the day to day maintenance. The team can instead focus more on the application and less on the infrastructure. With a managed data service you simply supply the data and the service grows, or shrinks, to support the desired capacity and performance criteria.
+
+MongoDB Atlas
+All of the major cloud providers offer multiple data services. For this class we will use the data service provided by MongoDB called Atlas. No credit card or payment is required to setup and use Atlas, as long as you stick to the shared cluster environment.
+
+Mongo sign up
+
+⚠ This video tutorial will step you through the process of creating your account and setting up your database. You really want to watch this video. Note that some of the Atlas website interface may be slightly different, but the basic concepts should all be there is some shape or form. The main steps you need to take are:
+
+Create your account.
+Create a database cluster.
+Create your root database user credentials. Remember these for later use.
+⚠ Set network access to your database to be available from anywhere. Atlas IP Anywhere
+Copy the connection string and use the information in your code.
+Save the connection and credential information in your production and development environments as instructed above.
+You can always find the connection string to your Atlas cluster by pressing the Connect button from your Database > DataServices view.
+
+Atlas connection string
+
+Keeping your keys out of your code
+You need to protect your credentials for connecting to your Mongo database. One common mistake is to check them into your code and then post it to a public GitHub repository. Instead you can load your credentials when the application executes. One common way to do that is to read them from environment variables. The JavaScript process.env object provides access to the environment.
+
+const userName = process.env.MONGOUSER;
+const password = process.env.MONGOPASSWORD;
+const hostname = process.env.MONGOHOSTNAME;
+
+if (!userName) {
+  throw Error("Database not configured. Set environment variables");
+}
+Following this pattern requires you to set these variables in your development and production environments before you can successfully execute.
+
+Setting environment variables for your production environment
+For your production environment, you will add your MongoDB Atlas credentials by using SSH to your server.
+
+➜  ssh -i [key pair file] ubuntu@[yourdomainnamehere]
+for example,
+
+➜  ssh -i ~/keys/production.pem ubuntu@myfunkychickens.click
+Then open up the global environment settings file /etc/environment.
+
+sudo vi /etc/environment
+In the environment file you will find that the credentials are already set to access the class demo MongoDB server. You want to replace those values with your own values so that your data will be stored in your server.
+
+export MONGOUSER=<yourmongodbusername>
+export MONGOPASSWORD=<yourmongodbpassword>
+export MONGOHOSTNAME=<yourmongodbhostname>
+When you are done modifying the /etc/environment with your MongoDB username, password, and hostname, save the file. It will look something like the following.
+
+export MONGOUSER=cs260mongo
+export MONGOPASSWORD=toomanysecrets
+export MONGOHOSTNAME=cs260.nan123cs.mongodb.net
+Exit your SSH session and reconnect again so that the environment variables are active in the console window you are using.
+
+You then need to tell your Simon and Start Up services to use the new values found in the environment file. To do this you need to tell our service daemon, PM2, to reload its stored environment for all services that it manages. You then need to tell PM2 to save the new configuration so that it will persist when your server restarts. Run these commands from a SSH session on your production server.
+
+pm2 restart all --update-env
+pm2 save
+Setting environment variables for your development environment
+For your development environment add the same environment variables. Depending on what operating system and console you are using, how you add the variables will be different.
+
+Linux
+
+Modify the /etc/environment file to include the three environment variable export statements as defined above.
+Mac
+
+Modify your shell resource file to include three environment variable export statements defined above. If you are using Zsh then the file is: ~/.zshrc. If you are using Bash then the file is: ~/.bashrc.
+Windows
+
+From the Start Menu search for "system environment variables" in the search bar
+Go to the Advanced Tab
+Click on Environment Variables
+Under SYSTEM variables click on NEW
+Add each variable individually into the variables information and click APPLY and OK
+Restart program needing the variables
+If necessary consult the documentation for the operating system, or console shell, you are using for the details on how to set environment variables.
+
+Using Mongo from your code
+With that all done, you should be good to use Atlas from both your development and production environments. You can test that things are working correctly with the following example.
+
+const { MongoClient } = require('mongodb');
+
+// Read the credentials from environment variables so that you do not accidentally check in your credentials
+const userName = process.env.MONGOUSER;
+const password = process.env.MONGOPASSWORD;
+const hostname = process.env.MONGOHOSTNAME;
+
+async function main() {
+  // Connect to the database cluster
+  const url = `mongodb+srv://${userName}:${password}@${hostname}`;
+  const client = new MongoClient(url);
+  const collection = client.db('rental').collection('house');
+
+  // Insert a document
+  const house = {
+    name: 'Beachfront views',
+    summary: 'From your bedroom to the beach, no shoes required',
+    property_type: 'Condo',
+    beds: 1,
+  };
+  await collection.insertOne(house);
+
+  // Query the documents
+  const query = { property_type: 'Condo', beds: { $lt: 2 } };
+  const options = {
+    sort: { score: -1 },
+    limit: 10,
+  };
+
+  const cursor = collection.find(query, options);
+  const rentals = await cursor.toArray();
+  rentals.forEach((i) => console.log(i));
+}
+
+main().catch(console.error);
+To execute the above example, do the following:
+
+Create a directory called mongoTest
+Save the above content to a file named main.js
+Run npm init -y
+Run npm install mongodb
+Run node main.js.
+This should output something like the following if everything is working correctly.
+
+{
+_id: new ObjectId("639b51b74ef1e953b884ca5b"),
+name: 'Beachfront views',
+summary: 'From your bedroom to the beach, no shoes required',
+property_type: 'Condo',
+beds: 1
+}
+       
+This deliverable demonstrates using a database service, MongoDB, to persistently save data. Our web service will call the database service to save high scores. This creates a third layer in our Simon technology stack.
+
+Client application - Simple HTML/CSS/JavaScript
+Web service - Caddy, Node.js, Express
+Database service - MongoDB
+You can view this application running here: Example Simon DB. Although you won't be able to see any difference from the simon-service version, because the only difference is that when the simon-db service is restarted it doesn't lose its high score data because it is saved persistently in the database.
+
+Connecting to the database
+We use a cloud service called MongoDB Atlas for our database service. Once we are connected to Atlas, we can make service calls to MongoDB from our web service. This involves specifying the database service endpoint and making services calls like the following.
+
+const { MongoClient } = require('mongodb');
+
+const url = `mongodb+srv://${userName}:${password}@${hostname}`;
+const client = new MongoClient(url);
+client.connect(err => {
+  const collection = client.db("test").collection("devices");
+
+  // ... perform actions on the DB collection
+
+  client.close();
+});
+Create a MongoDB Atlas cluster
+Before you can start writing your own code you need to get a MongoDB Atlas account and create a database cluster that you can use as your database service. If you have not done that yet go back and review the instruction on data services.
+
+Handling credentials
+Make sure you follow the instruction given previously about providing and protecting your MongoDB credentials using environment variables.
+
+Working with the database
+The database.js file contains the functions for getting and adding high scores. The database functions are called from the getScores and submitScores endpoints found in index.js.
+       
+AUTHORIZATION SERVICES: If your application is going to remember a user's data then it will need a way to uniquely associate the data with a particular credential. That usually means that you authenticate a user by asking for information, such as an email address and password. You then remember, for some period of time, that the user has authenticated by storing an authentication token on the user's device. Often that token is stored in a cookie that is passed back to your web service on each request. The service can now associate data that the user supplies with a unique identifier that corresponds to their authorization token.
+
+authentication
+
+Determining what a user is authorized to do in your application is also important. For example, you might have different roles in your application such as Administrators, Editors, and Customers. Once you have the ability to authenticate a user and store information about that user, you can also store the authorization for the user. A simple application might have a single field that represents the role of the user. The service code would then use that role to allow, limit, or prevent what a service endpoint does. A complex web application will usually have very powerful authorization representation that controls the user's access to every part of the application. For example, an Editor role might have authorization only to work on content that they created or were invited to.
+
+authorize
+
+As you might imagine, authentication and authorization can become very complex, very quickly. It is also a primary target for a hacker. If they can bypass the authentication or escalate what they are authorized to do then they can gain control of your application. Additionally, constantly forcing users to authenticate in a secure way causes users to not want to use an application. This creates opposing priorities. Keep the system secure or make it easy to use.
+
+In an attempt to remove the complexity of authentication and authorization from your application many service providers and package developers have created solutions that you can use. Assuming that you are using a trusted, well tested, service this is an attractive option because it removes the cost of building, testing, and managing that critical infrastructure yourself.
+
+Authorization services often use standard protocols for authenticating and authorizing. These include standards such as OAuth, SAML, and OIDC. Additionally, they usually support concepts like Single Sign On (SSO) and Federated Login. Single sign on allows a user to use the same credentials for multiple web applications. For example, you can login into GitHub using your Google credentials. Federated login allows a user to login once and then the authentication token reused to automatically log the user into multiple websites. For example, logging into Gmail allows you to also use Google Docs and YouTube without logging in again.
+
+For this course we will implement our own authentication using a simple a simple email/password design. Knowing how to implement a simple authentication design will help you appreciate what authentication services provide. If you want to experiment with different authorization services you might consider AWS Cognito, or Google Firebase.
+       
+ACCOUNT CREATION AND LOGIN: The first step towards supporting authentication in your web application is providing a way for users to uniquely identify themselves. This usually requires two service endpoints. One to initially create an authentication credential, and a second to authenticate, or login, on future visits. Once a user is authenticated we can control access to other endpoints. For example, web services often have a getMe endpoint that gives information about the currently authenticated user. We will implement this endpoint to demonstrate that authentication is actually working correctly.
+
+Endpoint design
+Using HTTP we can map out the design of each of our endpoints.
+
+Create authentication endpoint
+This takes an email and password and returns a cookie containing the authentication token and user ID. If the email already exists it returns a 409 (conflict) status code.
+
+POST /auth/create HTTP/2
+Content-Type: application/json
+
+{
+  "email":"marta@id.com",
+  "password":"toomanysecrets"
+}
+HTTP/2 200 OK
+Content-Type: application/json
+Set-Cookie: auth=tokenHere
+
+{
+  "id":"337"
+}
+Login authentication endpoint
+This takes an email and password and returns a cookie containing the authentication token and user ID. If the email does not exist or the password is bad it returns a 401 (unauthorized) status code.
+
+POST /auth/login HTTP/2
+Content-Type: application/json
+
+{
+  "email":"marta@id.com",
+  "password":"toomanysecrets"
+}
+HTTP/2 200 OK
+Content-Type: application/json
+Set-Cookie: auth=tokenHere
+
+{
+  "id":"337"
+}
+GetMe endpoint
+This uses the authentication token stored in the cookie to look up and return information about the authenticated user. If the token or user do not exist it returns a 401 (unauthorized) status code.
+
+GET /user/me HTTP/2
+Cookie: auth=tokenHere
+HTTP/2 200 OK
+Content-Type: application/json
+
+{
+  "email":"marta@id.com"
+}
+Web service
+With our service endpoints designed, we can now build our web service using Express.
+
+const express = require('express');
+const app = express();
+
+app.post('/auth/create', async (req, res) => {
+  res.send({ id: 'user@id.com' });
+});
+
+app.post('/auth/login', async (req, res) => {
+  res.send({ id: 'user@id.com' });
+});
+
+const port = 8080;
+app.listen(port, function () {
+  console.log(`Listening on port ${port}`);
+});
+Follow these steps, and then add in the code from the sections that follow. There is a copy of the final version of the example at the end of this instruction. If you get lost, or things are not working as expected, refer to the final version.
+
+Create a directory called authTest that we will work in.
+
+Save the above content to a file named main.js. This is our starting web service.
+
+Run npm init -y to initial the project to work with node.js.
+
+Run npm install express cookie-parser mongodb uuid bcrypt to install all of the packages we are going to use.
+
+Run node main.js or press F5 in VS Code to start up the web service.
+
+You can now open a console window and use curl to try out one of the endpoints.
+
+➜  curl -X POST localhost:8080/auth/create
+
+{"id":"user@id.com"}
+Handling requests
+With our basic service created, we can now implement the create authentication endpoint. The first step is to read the credentials from the body of the HTTP request. Since the body is designed to contain JSON we need to tell Express that it should parse HTTP requests, with a content type of application/json, automatically into a JavaScript object. We do this by using the express.json middleware. We can then read the email and password directly out of the req.body object. We can test that this is working by temporarily including them in the response.
+
+app.use(express.json());
+
+app.post('/auth/create', (req, res) => {
+  res.send({
+    id: 'user@id.com',
+    email: req.body.email,
+    password: req.body.password,
+  });
+});
+➜  curl -X POST localhost:8080/auth/create -H 'Content-Type:application/json' -d '{"email":"marta@id.com", "password":"toomanysecrets"}'
+
+{"id":"user@id.com","email":"marta@id.com","password":"toomanysecrets"}
+Now that we have proven that we can parse the request bodies correctly, we can change the code to add a check to see if we already have a user with that email address. If we do, then we immediately return a 409 (conflict) status code. Otherwise we create a new user and return the user ID.
+
+app.post('/auth/create', async (req, res) => {
+  if (await getUser(req.body.email)) {
+    res.status(409).send({ msg: 'Existing user' });
+  } else {
+    const user = await createUser(req.body.email, req.body.password);
+    res.send({
+      id: user._id,
+    });
+  }
+});
+Using the database
+We want to persistently store our users in Mongo and so we need to set up our code to connect to and use the database. This code is explained in the instruction on data services if you want to review what it is doing.
+
+const { MongoClient } = require('mongodb');
+
+const userName = process.env.MONGOUSER;
+const password = process.env.MONGOPASSWORD;
+const hostname = process.env.MONGOHOSTNAME;
+
+const url = `mongodb+srv://${userName}:${password}@${hostname}`;
+const client = new MongoClient(url);
+const collection = client.db('authTest').collection('user');
+With a Mongo collection object we can implement the getUser and createUser functions.
+
+function getUser(email) {
+  return collection.findOne({ email: email });
+}
+
+async function createUser(email, password) {
+  const user = {
+    email: email,
+    password: password,
+    token: 'xxx',
+  };
+  return collection.insertOne(user);
+}
+But, we are missing a couple of things. We need to a real authentication token, and we cannot simply store a clear text password in our database.
+
+Generating authentication tokens
+To generate a reasonable authentication token we use the uuid package. UUID stands for Universally Unique Identifier, and it does a really good job creating a hard to guess, random, unique ID.
+
+const uuid = require('uuid');
+
+token: uuid.v4();
+Securing passwords
+Next we need to securely store our passwords. Failing to do so is a major security concern. If, and it has happened to many major companies, a hacker is able to access the database, they will have the passwords for all of your users. This may not seem like a big deal if your application is not very valuable, but users often reuse passwords. That means you will also provide the hacker with the means to attack the user on many other websites.
+
+So instead of storing the password directly, we want to cryptographically hash the password so that we never store the actual password. When we want to validate a password during login, we can hash the login password and compare it to our stored hash of the password.
+
+To hash our passwords we will use the bcrypt package. This creates a very secure one way hash of the password. If you are interested in understanding how bcrypt works, it is definitely worth the time.
+
+const bcrypt = require('bcrypt');
+
+async function createUser(email, password) {
+  // Hash the password before we insert it into the database
+  const passwordHash = await bcrypt.hash(password, 10);
+
+  const user = {
+    email: email,
+    password: passwordHash,
+    token: uuid.v4(),
+  };
+  await collection.insertOne(user);
+
+  return user;
+}
+Passing authentication tokens
+We now need to pass our generated authentication token to the browser when the login endpoint is called, and get it back on subsequent requests. To do this we use HTTP cookies. The cookie-parser package provides middleware for cookies and so we will leverage that.
+
+We import the cookieParser object and then tell our app to use it. When a user is successfully created, or logs in, we set the cookie header. Since we are storing an authentication token in the cookie we want to make it as secure as possible, and so we use the httpOnly, secure, and sameSite options.
+
+httpOnly tells the browser to not allow JavaScript running on the browser to read the cookie.
+secure requires HTTPS to be used when sending the cookie back to the server.
+sameSite will only return the cookie to the domain that generated it.
+const cookieParser = require('cookie-parser');
+
+// Use the cookie parser middleware
+app.use(cookieParser());
+
+apiRouter.post('/auth/create', async (req, res) => {
+  if (await DB.getUser(req.body.email)) {
+    res.status(409).send({ msg: 'Existing user' });
+  } else {
+    const user = await DB.createUser(req.body.email, req.body.password);
+
+    // Set the cookie
+    setAuthCookie(res, user.token);
+
+    res.send({
+      id: user._id,
+    });
+  }
+});
+
+function setAuthCookie(res, authToken) {
+  res.cookie('token', authToken, {
+    secure: true,
+    httpOnly: true,
+    sameSite: 'strict',
+  });
+}
+Login endpoint
+The login authorization endpoint needs to get the hashed password from the database, compare it to the provided password using bcrypt.compare, and if successful set the authentication token in the cookie. If the password does not match, or there is no user with the given email, the endpoint returns status 401 (unauthorized).
+
+app.post('/auth/login', async (req, res) => {
+  const user = await getUser(req.body.email);
+  if (user) {
+    if (await bcrypt.compare(req.body.password, user.password)) {
+      setAuthCookie(res, user.token);
+      res.send({ id: user._id });
+      return;
+    }
+  }
+  res.status(401).send({ msg: 'Unauthorized' });
+});
+GetMe endpoint
+With everything in place to create credentials and login using the credentials, we can now implement the getMe endpoint to demonstrate that it all actually works. To implement this we get the user object from the database by querying on the authentication token. If there is not an authentication token, or there is no user with that token, we return status 401 (unauthorized).
+
+app.get('/user/me', async (req, res) => {
+  authToken = req.cookies['token'];
+  const user = await collection.findOne({ token: authToken });
+  if (user) {
+    res.send({ email: user.email });
+    return;
+  }
+  res.status(401).send({ msg: 'Unauthorized' });
+});
+Final code
+Here is the full example code.
+
+const { MongoClient } = require('mongodb');
+const uuid = require('uuid');
+const bcrypt = require('bcrypt');
+const cookieParser = require('cookie-parser');
+const express = require('express');
+const app = express();
+
+const userName = process.env.MONGOUSER;
+const password = process.env.MONGOPASSWORD;
+const hostname = process.env.MONGOHOSTNAME;
+
+const url = `mongodb+srv://${userName}:${password}@${hostname}`;
+const client = new MongoClient(url);
+const collection = client.db('authTest').collection('user');
+
+app.use(cookieParser());
+app.use(express.json());
+
+// createAuthorization from the given credentials
+app.post('/auth/create', async (req, res) => {
+  if (await getUser(req.body.email)) {
+    res.status(409).send({ msg: 'Existing user' });
+  } else {
+    const user = await createUser(req.body.email, req.body.password);
+    setAuthCookie(res, user.token);
+    res.send({
+      id: user._id,
+    });
+  }
+});
+
+// loginAuthorization from the given credentials
+app.post('/auth/login', async (req, res) => {
+  const user = await getUser(req.body.email);
+  if (user) {
+    if (await bcrypt.compare(req.body.password, user.password)) {
+      setAuthCookie(res, user.token);
+      res.send({ id: user._id });
+      return;
+    }
+  }
+  res.status(401).send({ msg: 'Unauthorized' });
+});
+
+// getMe for the currently authenticated user
+app.get('/user/me', async (req, res) => {
+  authToken = req.cookies['token'];
+  const user = await collection.findOne({ token: authToken });
+  if (user) {
+    res.send({ email: user.email });
+    return;
+  }
+  res.status(401).send({ msg: 'Unauthorized' });
+});
+
+function getUser(email) {
+  return collection.findOne({ email: email });
+}
+
+async function createUser(email, password) {
+  const passwordHash = await bcrypt.hash(password, 10);
+  const user = {
+    email: email,
+    password: passwordHash,
+    token: uuid.v4(),
+  };
+  await collection.insertOne(user);
+
+  return user;
+}
+
+function setAuthCookie(res, authToken) {
+  res.cookie('token', authToken, {
+    secure: true,
+    httpOnly: true,
+    sameSite: 'strict',
+  });
+}
+
+const port = 8080;
+app.listen(port, function () {
+  console.log(`Listening on port ${port}`);
+});
+Experiment
+With everything implemented we can use curl to try it out. First start up the web service from VS Code by pressing F5 and selecting node.js as the debugger if you have not already done that. You can set breakpoints on all of the different endpoints to see what they do and inspect the different variables. Then open a console window and run the following curl commands. You should see similar results as what is shown below. Note that the -c and -b parameters tell curl to store and use cookies with the given file.
+
+➜  curl -X POST localhost:8080/auth/create -H 'Content-Type:application/json' -d '{"email":"지안@id.com", "password":"toomanysecrets"}'
+
+{"id":"639bb9d644416bf7278dde44"}
+
+
+➜  curl -c cookie.txt -X POST localhost:8080/auth/login -H 'Content-Type:application/json' -d '{"email":"지안@id.com", "password":"toomanysecrets"}'
+
+{"id":"639bb9d644416bf7278dde44"}
+
+
+➜  curl -b cookie.txt localhost:8080/user/me
+
+{"email":"지안@id.com"}
+       
+This deliverable demonstrates authenticating users and storing credentials and authentication tokens in MongoDB.
+
+You can view this application running here: Example Simon Login
+
+Simon Login
+
+Authorization UI
+The public/index.html, public/login.js, and public/login.css files provide all the login UI. Bootstrap provides the styling for the controls.
+
+When index.html is loaded an anonymous function in login.js determines if the user is already authenticated and uses that state to hide or show the login controls.
+
+When a user logs in, logs out, or creates credentials the service endpoints are called.
+
+Authorization cookie
+The application service uses a secure cookie to store the authorization token for an authenticated user.
+
+function setAuthCookie(res, authToken) {
+  res.cookie(authCookieName, authToken, {
+    secure: true,
+    httpOnly: true,
+    sameSite: 'strict',
+  });
+}
+Note the use of secure, httpOnly, and sameSite. Make sure you are familiar with what each of these mean.
+
+When a user is logged in, the cookie is added. When a user makes a secure request, the cookie is checked. When the user logs out, the cookie is removed.
+
+Application service endpoints
+The service endpoints are contained in index.js. The endpoints include authCreate, authLogin, authLogout, and userGet. These all work with the database to store and get credentials and update the authorization cookie.
+
+A new Express router, secureApiRouter wraps the existing router to add a middleware function that verifies that the authorization cookie is valid before passing the request to endpoints that require authorization. That makes it easy to create secure endpoints by just registering them with secureApiRouter.
+       
+WEB SOCKET: HTTP is based on a client server architecture. A client always initiates the request and the server responds. This is great if you are building a global document library connected by hyperlinks, but for many other use cases it just doesn't work. Applications for notifications, distributed task processing, peer to peer communication, or asynchronous events need communication that is initiated by two or more connected devices.
+
+For years, web developers created hacks to work around the limitation of the client/server model. This included solutions like having the client frequently pinging the server to see if the server had anything to say, or keeping client initiated connections open for a very long time as the client waited for some event to happen on the server. Needless to say, none of these solutions were elegant or efficient.
+
+Finally, in 2011 the communication protocol WebSocket was created to solve this problem. The core feature of WebSocket is that it is fully duplexed. Meaning that after the initial connection is made from a client, using vanilla HTTP, and then upgraded by the server to a WebSocket connection, the relationship changes to a peer to peer connection where either party can efficiently send data at any time.
+
+WebSocket Upgrade
+
+WebSocket connections are still only between two parties. So if you want to facilitate a conversation between a group of users the server must act as the intermediary. Each peer first connects to the server, and then the server forwards messages amongst the peers.
+
+WebSocket Peers
+
+Creating a WebSocket conversation
+JavaScript running on a browser can initiate a websocket connection with the browser's WebSocket API. First you create a WebSocket object by specifying the port you want to communicate on.
+
+You can then send messages with the send function, and register a callback using the onmessage function to receive messages.
+
+const socket = new WebSocket('ws://localhost:9900');
+
+socket.onmessage = (event) => {
+  console.log('received: ', event.data);
+};
+
+socket.send('I am listening');
+The server uses the ws package to create a WebSocketServer that is listening on the same port the browser is using. By specifying a port when you create the WebSocketServer you are telling the server to listen for HTTP connections on that port and to automatically upgrade them to a WebSocket connection if the request has a connection: Upgrade header.
+
+When a connection is detected it calls the server's on connection callback. The server can then send messages with the send function, and register a callback using the on message function to receive messages.
+
+const { WebSocketServer } = require('ws');
+
+const wss = new WebSocketServer({ port: 9900 });
+
+wss.on('connection', (ws) => {
+  ws.on('message', (data) => {
+    const msg = String.fromCharCode(...data);
+    console.log('received: %s', msg);
+
+    ws.send(`I heard you say "${msg}"`);
+  });
+
+  ws.send('Hello webSocket');
+});
+In later instruction we will show you how to run and debug this example.
